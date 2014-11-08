@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VindiniumBot", "VindiniumBo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VindiniumCore", "VindiniumCore\VindiniumCore.csproj", "{FAA2B9E4-870B-404B-9A0B-80935D18B544}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VindiniumTest", "VindiniumTest\VindiniumTest.csproj", "{05D9241A-1E0F-4F43-912D-9289EE64F01A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{FAA2B9E4-870B-404B-9A0B-80935D18B544}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FAA2B9E4-870B-404B-9A0B-80935D18B544}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FAA2B9E4-870B-404B-9A0B-80935D18B544}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05D9241A-1E0F-4F43-912D-9289EE64F01A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05D9241A-1E0F-4F43-912D-9289EE64F01A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05D9241A-1E0F-4F43-912D-9289EE64F01A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05D9241A-1E0F-4F43-912D-9289EE64F01A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
