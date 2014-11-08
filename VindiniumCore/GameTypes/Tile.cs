@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace VindiniumCore
+namespace VindiniumCore.GameTypes
 {
     public class Tile : Position
     {
