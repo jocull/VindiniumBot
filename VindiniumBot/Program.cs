@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VindiniumBot.Bots;
 
 namespace VindiniumBot
 {
@@ -13,7 +14,16 @@ namespace VindiniumBot
             var options = new CommandLineOptions();
             if (CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                // Values are available here
+                try
+                {
+                    MyBot bot = new MyBot();
+                    BotClient client = new BotClient(options, bot);
+                    client.Run();
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
         }
     }

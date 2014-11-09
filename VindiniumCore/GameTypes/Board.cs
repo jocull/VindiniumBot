@@ -26,12 +26,6 @@ namespace VindiniumCore.GameTypes
         [JsonProperty("tiles")]
         public string TilesAsString { get; set; }
 
-        /// <summary>
-        /// If the game is finished or not.
-        /// </summary>
-        [JsonProperty("finished")]
-        public bool Finished { get; set; }
-
         #endregion
 
         private Tile[][] _Tiles = null;
