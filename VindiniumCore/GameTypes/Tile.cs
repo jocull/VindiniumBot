@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VindiniumCore.PathFinding;
 
 namespace VindiniumCore.GameTypes
 {
-    public class Tile : Position
+    public class Tile : Node
     {
         public enum TileTypes
         {
@@ -17,8 +18,14 @@ namespace VindiniumCore.GameTypes
             GoldMine = '$'
         }
 
+        #region Core Properties
+
         public TileTypes TileType { get; set; }
         public byte? OwnerId { get; set; }
+
+        #endregion
+
+        #region Map parsing and serialization
 
         /*  Example maps from documentation:
             +----------------------------------------+
@@ -131,5 +138,33 @@ namespace VindiniumCore.GameTypes
                     return "??";
             };
         }
+
+        #endregion
+
+        #region Node implementation
+
+        public override int NodeMovementCost
+        {
+            get { return 10; }
+        }
+
+        public override bool NodeBlocked
+        {
+            get
+            {
+                switch (this.TileType)
+                {
+                    //Can't get through any of these types
+                    case TileTypes.ImpassableWood:
+                    //case TileTypes.GoldMine:
+                    //case TileTypes.Hero:
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+        }
+
+        #endregion
     }
 }

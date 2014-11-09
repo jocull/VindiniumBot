@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VindiniumCore.PathFinding;
 
 namespace VindiniumCore.GameTypes
 {
-    public class Position
+    public class Position : IPosition
     {
         #region Core Properties
 
