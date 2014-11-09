@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bot\IRobot.cs" />
     <Compile Include="GameTypes\Board.cs" />
     <Compile Include="GameTypes\Game.cs" />
     <Compile Include="GameTypes\GameState.cs" />

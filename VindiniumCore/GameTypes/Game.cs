@@ -45,6 +45,12 @@ namespace VindiniumCore.GameTypes
         [JsonProperty("board")]
         public Board Board { get; set; }
 
+        /// <summary>
+        /// If the game is finished or not.
+        /// </summary>
+        [JsonProperty("finished")]
+        public bool Finished { get; set; }
+
         #endregion
 
         public static Game FromJson(string json)

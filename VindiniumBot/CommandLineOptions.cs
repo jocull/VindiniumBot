@@ -33,8 +33,16 @@ namespace VindiniumBot
         [Option('m',
                 "map",
                 Required = false,
+                DefaultValue = null,
                 HelpText = "A custom map to run in training mode")]
         public string Map { get; set; }
+
+        [Option('u',
+                "url",
+                Required = false,
+                DefaultValue = "http://vindinium.org",
+                HelpText = "HTTP URL of Vindinium server")]
+        public string ServerUrl { get; set; }
 
         [HelpOption]
         public string GetUsage()
