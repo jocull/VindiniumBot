@@ -154,11 +154,9 @@ namespace VindiniumCore.GameTypes
             {
                 switch (this.TileType)
                 {
-                    //Can't get through any of these types
-                    case TileTypes.ImpassableWood:
-                    case TileTypes.GoldMine:
-                    case TileTypes.Hero:
+                    case TileTypes.Open:
                         return true;
+                    //Can't get through any other type
                     default:
                         return false;
                 }
