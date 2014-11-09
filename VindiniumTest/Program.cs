@@ -38,9 +38,8 @@ namespace VindiniumTest
             PathFinder pathFinder = new PathFinder(gameStep.Game.Board);
 
             //Map all gold mines
-            var pathsToGoldMines = goldMines.Select(x => pathFinder.FindShortestPath(hero1Tile, x))
-                                            .OrderBy(x => x.CostToThisPath)
-                                            .ToList();
+            DirectionSet directions = gameStep.Game.FindPathsToGoldMines(hero1Tile, x => true).FirstOrDefault();
+            var pathsToGoldMines = gameStep.Game.FindPathsToGoldMines(hero1Tile, x => true).ToList();
             Console.WriteLine(string.Format("{0:#,0} ms", sw.ElapsedMilliseconds));
 
             foreach (var path in pathsToGoldMines)
@@ -51,7 +50,7 @@ namespace VindiniumTest
             }
 
             sw.Restart();
-            NodePath path2 = pathFinder.FindShortestPath(hero1Tile, hero3Tile);
+            DirectionSet path2 = gameStep.Game.FindPath(hero1Tile, hero3Tile);
             Console.WriteLine(string.Format("{0:#,0} ms", sw.ElapsedMilliseconds));
             Console.WriteLine(gameStep.Game.Board.ToString(path2));
 

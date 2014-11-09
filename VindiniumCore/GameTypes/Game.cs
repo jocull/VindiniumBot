@@ -101,24 +101,34 @@ namespace VindiniumCore.GameTypes
 
         #region Finding paths
 
-        public IEnumerable<NodePath> FindPaths(Node source, IEnumerable<Tile> tiles)
+        public DirectionSet FindPath(Node source, Node target)
         {
-            return tiles.Select(tile => Pathfinder.FindShortestPath(source, tile))
-                        .Where(x => x != null)
-                        .OrderBy(x => x.CostToThisPath);
+            var path = Pathfinder.FindShortestPath(source, target);
+            if (path != null)
+            {
+                return new DirectionSet(path);
+            }
+            return null;
         }
 
-        public IEnumerable<NodePath> FindPathsToHeroes(Node source, Func<Tile, bool> predicate)
+        public IEnumerable<DirectionSet> FindPaths(Node source, IEnumerable<Tile> tiles)
+        {
+            return tiles.Select(tile => FindPath(source, tile))
+                        .Where(x => x != null)
+                        .OrderBy(x => x.Distance);
+        }
+
+        public IEnumerable<DirectionSet> FindPathsToHeroes(Node source, Func<Tile, bool> predicate)
         {
             return FindPaths(source, FindHeroes(predicate));
         }
 
-        public IEnumerable<NodePath> FindPathsToGoldMines(Node source, Func<Tile, bool> predicate)
+        public IEnumerable<DirectionSet> FindPathsToGoldMines(Node source, Func<Tile, bool> predicate)
         {
             return FindPaths(source, FindGoldMines(predicate));
         }
 
-        public IEnumerable<NodePath> FindPathsToTaverns(Node source, Func<Tile, bool> predicate)
+        public IEnumerable<DirectionSet> FindPathsToTaverns(Node source, Func<Tile, bool> predicate)
         {
             return FindPaths(source, FindTaverns(predicate));
         }
