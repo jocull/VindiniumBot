@@ -41,19 +41,19 @@ namespace VindiniumCore.GameTypes
                 {
                     if (lastNode.X < node.X)
                     {
-                        directions.Add(GameTypes.Directions.West);
+                        directions.Add(GameTypes.Directions.East);
                     }
                     else if (lastNode.X > node.X)
                     {
-                        directions.Add(GameTypes.Directions.East);
+                        directions.Add(GameTypes.Directions.West);
                     }
                     else if (lastNode.Y < node.Y)
                     {
-                        directions.Add(GameTypes.Directions.North);
+                        directions.Add(GameTypes.Directions.South);
                     }
                     else if (lastNode.Y > node.Y)
                     {
-                        directions.Add(GameTypes.Directions.South);
+                        directions.Add(GameTypes.Directions.North);
                     }
                 }
                 lastNode = node;
