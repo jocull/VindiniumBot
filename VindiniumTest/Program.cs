@@ -29,20 +29,26 @@ namespace VindiniumTest
             Console.WriteLine(gameStep.Game.Board.ToString());
             Console.WriteLine(string.Format("{0:#,0} ms", sw.ElapsedMilliseconds));
 
-            Tile hero1Tile = gameStep.Game.Board.Tiles.SelectMany(x => x)
-                                                      .FirstOrDefault(x => x.TileType == Tile.TileTypes.Hero
-                                                                        && x.OwnerId == 1);
-            Tile hero3Tile = gameStep.Game.Board.Tiles.SelectMany(x => x)
-                                                      .FirstOrDefault(x => x.TileType == Tile.TileTypes.Hero
-                                                                        && x.OwnerId == 3);
-            Tile goldMine = gameStep.Game.Board.Tiles.SelectMany(x => x)
-                                                     .FirstOrDefault(x => x.TileType == Tile.TileTypes.GoldMine);
+            Tile hero1Tile = gameStep.Game.FindHeroes(x => x.OwnerId == 1).FirstOrDefault();
+            Tile hero3Tile = gameStep.Game.FindHeroes(x => x.OwnerId == 3).FirstOrDefault();
+
+            IEnumerable<Tile> goldMines = gameStep.Game.FindGoldMines(x => true);
 
             sw.Restart();
             PathFinder pathFinder = new PathFinder(gameStep.Game.Board);
-            NodePath path = pathFinder.FindShortestPath(hero1Tile, goldMine);
+
+            //Map all gold mines
+            var pathsToGoldMines = goldMines.Select(x => pathFinder.FindShortestPath(hero1Tile, x))
+                                            .OrderBy(x => x.CostToThisPath)
+                                            .ToList();
             Console.WriteLine(string.Format("{0:#,0} ms", sw.ElapsedMilliseconds));
-            Console.WriteLine(gameStep.Game.Board.ToString(path));
+
+            foreach (var path in pathsToGoldMines)
+            {
+                sw.Restart();
+                Console.WriteLine(gameStep.Game.Board.ToString(path));
+                Console.WriteLine(string.Format("{0:#,0} ms", sw.ElapsedMilliseconds));
+            }
 
             sw.Restart();
             NodePath path2 = pathFinder.FindShortestPath(hero1Tile, hero3Tile);

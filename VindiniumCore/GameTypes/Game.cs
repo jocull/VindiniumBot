@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VindiniumCore.PathFinding;
 
 namespace VindiniumCore.GameTypes
 {
@@ -50,5 +51,72 @@ namespace VindiniumCore.GameTypes
         {
             return JsonConvert.DeserializeObject<Game>(json);
         }
+
+        #region Pathfinding properties
+
+        private PathFinder _Pathfinder;
+        public PathFinder Pathfinder
+        {
+            get
+            {
+                if (_Pathfinder == null)
+                {
+                    _Pathfinder = new PathFinder(Board);
+                }
+                return _Pathfinder;
+            }
+        }
+        
+        #endregion
+
+        #region Finding tiles
+
+        public IEnumerable<Tile> FindTiles(Func<Tile, bool> predicate)
+        {
+            return Board.TilesFlattened.Where(x => predicate(x));
+        }
+
+        public IEnumerable<Tile> FindHeroes(Func<Tile, bool> predicate)
+        {
+            return FindTiles(x => x.TileType == Tile.TileTypes.Hero).Where(x => predicate(x));
+        }
+
+        public IEnumerable<Tile> FindGoldMines(Func<Tile, bool> predicate)
+        {
+            return FindTiles(x => x.TileType == Tile.TileTypes.GoldMine).Where(x => predicate(x));
+        }
+
+        public IEnumerable<Tile> FindTaverns(Func<Tile, bool> predciate)
+        {
+            return FindTiles(x => x.TileType == Tile.TileTypes.Tavern).Where(x => predciate(x));
+        }
+
+        #endregion
+
+        #region Finding paths
+
+        public IEnumerable<NodePath> FindPaths(Node source, IEnumerable<Tile> tiles)
+        {
+            return tiles.Select(tile => Pathfinder.FindShortestPath(source, tile))
+                        .Where(x => x != null)
+                        .OrderBy(x => x.CostToThisPath);
+        }
+
+        public IEnumerable<NodePath> FindPathsToHeroes(Node source, Func<Tile, bool> predicate)
+        {
+            return FindPaths(source, FindHeroes(predicate));
+        }
+
+        public IEnumerable<NodePath> FindPathsToGoldMines(Node source, Func<Tile, bool> predicate)
+        {
+            return FindPaths(source, FindGoldMines(predicate));
+        }
+
+        public IEnumerable<NodePath> FindPathsToTaverns(Node source, Func<Tile, bool> predicate)
+        {
+            return FindPaths(source, FindTaverns(predicate));
+        }
+
+        #endregion
     }
 }

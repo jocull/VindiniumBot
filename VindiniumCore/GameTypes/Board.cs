@@ -41,11 +41,29 @@ namespace VindiniumCore.GameTypes
             {
                 if (_Tiles == null)
                 {
-                    _Tiles = Tile.ParseTileChars(Size, TilesAsString);
+                    if (!string.IsNullOrEmpty(TilesAsString))
+                    {
+                        _Tiles = Tile.ParseTileChars(Size, TilesAsString);
+                    }
                 }
                 return _Tiles;
             }
         }
+
+        public IEnumerable<Tile> TilesFlattened
+        {
+            get
+            {
+                if (Tiles == null)
+                {
+                    return Enumerable.Empty<Tile>();
+                }
+
+                return Tiles.SelectMany(x => x);
+            }
+        }
+
+        #region ToString overrides
 
         /// <summary>
         /// Rebuild the board given our tiles
@@ -61,6 +79,9 @@ namespace VindiniumCore.GameTypes
             return string.Join(Environment.NewLine, lineStrings);
         }
 
+        /// <summary>
+        /// Rebuild the board tiles with a visible pathing
+        /// </summary>
         public string ToString(NodePath pathOverrides)
         {
             IEnumerable<NodePath> nodePaths = Enumerable.Empty<NodePath>();
@@ -88,6 +109,8 @@ namespace VindiniumCore.GameTypes
             return string.Join(Environment.NewLine, lineStrings);
         }
 
+        #endregion
+
         #region INodeSet implementation
 
         public Node GetNode(int x, int y)
@@ -112,7 +135,7 @@ namespace VindiniumCore.GameTypes
 
         public IEnumerable<Node> GetAllNodes()
         {
-            return Tiles.SelectMany(x => x);
+            return TilesFlattened;
         }
 
         #endregion
