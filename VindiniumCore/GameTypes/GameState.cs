@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace VindiniumCore.GameTypes
 {
-    public class GameStep
+    public class GameState
     {
         #region Core Properties
 
@@ -28,9 +28,9 @@ namespace VindiniumCore.GameTypes
 
         #endregion
 
-        public static GameStep FromJson(string json)
+        public static GameState FromJson(string json)
         {
-            return JsonConvert.DeserializeObject<GameStep>(json);
+            return JsonConvert.DeserializeObject<GameState>(json);
         }
 
         #region Helper methods

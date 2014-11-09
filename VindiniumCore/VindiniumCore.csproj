@@ -45,7 +45,7 @@
   <ItemGroup>
     <Compile Include="GameTypes\Board.cs" />
     <Compile Include="GameTypes\Game.cs" />
-    <Compile Include="GameTypes\GameStep.cs" />
+    <Compile Include="GameTypes\GameState.cs" />
     <Compile Include="GameTypes\Hero.cs" />
     <Compile Include="GameTypes\Position.cs" />
     <Compile Include="PathFinding\INodeSet.cs" />
