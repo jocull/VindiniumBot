@@ -27,5 +27,10 @@ namespace VindiniumCore.GameTypes
         public string PlayUrl { get; set; }
 
         #endregion
+
+        public static GameStep FromJson(string json)
+        {
+            return JsonConvert.DeserializeObject<GameStep>(json);
+        }
     }
 }

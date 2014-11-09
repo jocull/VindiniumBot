@@ -10,6 +10,15 @@ namespace VindiniumCore.GameTypes
     {
         #region Core Properties
 
+        public enum Directions
+        {
+            Stay,
+            North,
+            South,
+            East,
+            West
+        }
+
         [JsonProperty("id")]
         public byte ID { get; set; }
 
@@ -29,7 +38,7 @@ namespace VindiniumCore.GameTypes
         /// This property is not always sent!
         /// </summary>
         [JsonProperty("lastDir")]
-        public string LastDirection { get; set; }
+        public Directions? LastDirection { get; set; }
 
         [JsonProperty("life")]
         public int Life { get; set; }
@@ -44,5 +53,10 @@ namespace VindiniumCore.GameTypes
         public bool Crashed { get; set; }
 
         #endregion
+
+        public static Hero FromJson(string json)
+        {
+            return JsonConvert.DeserializeObject<Hero>(json);
+        }
     }
 }

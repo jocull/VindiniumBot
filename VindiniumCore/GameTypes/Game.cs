@@ -45,5 +45,10 @@ namespace VindiniumCore.GameTypes
         public Board Board { get; set; }
 
         #endregion
+
+        public static Game FromJson(string json)
+        {
+            return JsonConvert.DeserializeObject<Game>(json);
+        }
     }
 }
