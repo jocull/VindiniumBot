@@ -22,7 +22,7 @@ namespace VindiniumCore.GameTypes
         [JsonProperty("elo")]
         public int Elo { get; set; }
 
-        [JsonProperty("position")]
+        [JsonProperty("pos")]
         public Position Position { get; set; }
 
         /// <summary>
