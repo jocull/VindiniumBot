@@ -155,10 +155,10 @@ namespace VindiniumCore.GameTypes
                 switch (this.TileType)
                 {
                     case TileTypes.Open:
-                        return true;
+                        return false;
                     //Can't get through any other type
                     default:
-                        return false;
+                        return true;
                 }
             }
         }
