@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using VindiniumCore.Bot;
 using VindiniumCore.GameTypes;
@@ -116,6 +117,15 @@ namespace VindiniumBot
             GameState state = _GameStateFromJson(json);
             Debug.WriteLine("Got game state!");
             Debug.WriteLine("View at " + state.ViewUrl);
+
+            if (Debugger.IsAttached)
+            {
+                new Thread(new ThreadStart(() =>
+                    {
+                        Process.Start(state.ViewUrl);
+                    })).Start();
+            }
+
             return state;
         }
 

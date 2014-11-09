@@ -23,6 +23,7 @@ namespace VindiniumBot
                 catch(Exception ex)
                 {
                     Console.WriteLine(ex);
+                    throw;
                 }
             }
         }
