@@ -76,19 +76,14 @@ namespace VindiniumCore.GameTypes
         /// <summary>
         /// Rebuild the board tiles with a visible pathing
         /// </summary>
-        public string ToString(NodePath pathOverrides)
+        public string ToString(DirectionSet directions)
         {
-            IEnumerable<NodePath> nodePaths = Enumerable.Empty<NodePath>();
-            if (pathOverrides != null)
-            {
-                nodePaths = pathOverrides.ParentNodePaths;
-            }
-
             var lineStrings = Tiles.Select(line =>
             {
                 var rowStrings = line.Select(tile =>
                 {
-                    if (nodePaths.Any(p => p.SourceNode == tile))
+                    if (directions != null
+                        && directions.NodeSequence.Any(p => p == tile))
                     {
                         return "++";
                     }
