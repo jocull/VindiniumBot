@@ -87,9 +87,11 @@ namespace VindiniumCore.PathFinding
 
                         // -) If it is not walkable or if it is on the closed list, ignore it.
                         //    Otherwise do the following...
+                        //    *** Note: I added special cases here to not block our start or target nodes
+                        //              This is because you wouldn't move *through* them, but you can move *to* them.
                         Node adjacent = _NodeSet.GetRelativeNode(current, x, y);
                         if (adjacent != null
-                            && !adjacent.NodeBlocked
+                            && (!adjacent.NodeBlocked || adjacent == start || adjacent == target)
                             && !_ClosedList.Contains(adjacent))
                         {
                             NodePath adjacentPath = _NodePaths[adjacent];
