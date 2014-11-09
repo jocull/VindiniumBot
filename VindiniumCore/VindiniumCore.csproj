@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Bot\IRobot.cs" />
     <Compile Include="GameTypes\Board.cs" />
+    <Compile Include="GameTypes\Directions.cs" />
     <Compile Include="GameTypes\Game.cs" />
     <Compile Include="GameTypes\GameState.cs" />
     <Compile Include="GameTypes\Hero.cs" />

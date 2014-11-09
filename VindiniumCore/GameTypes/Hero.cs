@@ -6,15 +6,6 @@ using System.Text;
 
 namespace VindiniumCore.GameTypes
 {
-    public enum Directions
-    {
-        Stay,
-        North,
-        South,
-        East,
-        West
-    }
-
     public class Hero
     {
         #region Core Properties
