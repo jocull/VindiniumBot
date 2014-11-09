@@ -75,7 +75,7 @@ namespace VindiniumCore.GameTypes
                 {
                     if (nodePaths.Any(p => p.SourceNode == tile))
                     {
-                        return "**";
+                        return "++";
                     }
                     else
                     {
