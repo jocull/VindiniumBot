@@ -32,5 +32,14 @@ namespace VindiniumCore.GameTypes
         {
             return JsonConvert.DeserializeObject<GameStep>(json);
         }
+
+        #region Helper methods
+
+        public Tile FindMyHero()
+        {
+            return Game.FindHeroes(x => x.OwnerId == MyHero.ID).FirstOrDefault();
+        }
+
+        #endregion
     }
 }

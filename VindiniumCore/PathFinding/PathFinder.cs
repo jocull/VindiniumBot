@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace VindiniumCore.PathFinding
 {
     /// <summary>
-    /// Custom A* implementation
+    /// Custom A* implementation. This class is *NOT* thread safe!
     /// http://www.policyalmanac.org/games/aStarTutorial.htm
     /// </summary>
     public class PathFinder
@@ -38,14 +38,14 @@ namespace VindiniumCore.PathFinding
             }
         }
 
-        public NodePath FindShortestPath(Node start, Node target, int iterationLimit = 10000)
+        public NodePath FindShortestPath(Node source, Node target, int iterationLimit = 10000)
         {
             // Reset in case anything was present from another run
             _Reset(target);
 
             // 1) Add the starting node to the open list. 
-            _OpenList.Add(start);
-            _NodePaths[start].CostToThisPath = 0;
+            _OpenList.Add(source);
+            _NodePaths[source].CostToThisPath = 0;
 
             // 2) Repeat the following...
             Node current = null;
@@ -91,7 +91,7 @@ namespace VindiniumCore.PathFinding
                         //              This is because you wouldn't move *through* them, but you can move *to* them.
                         Node adjacent = _NodeSet.GetRelativeNode(current, x, y);
                         if (adjacent != null
-                            && (!adjacent.NodeBlocked || adjacent == start || adjacent == target)
+                            && (!adjacent.NodeBlocked || adjacent == source || adjacent == target)
                             && !_ClosedList.Contains(adjacent))
                         {
                             NodePath adjacentPath = _NodePaths[adjacent];

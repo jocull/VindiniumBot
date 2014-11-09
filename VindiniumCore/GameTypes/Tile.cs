@@ -145,7 +145,7 @@ namespace VindiniumCore.GameTypes
 
         public override int NodeMovementCost
         {
-            get { return 10; }
+            get { return 1; }
         }
 
         public override bool NodeBlocked
