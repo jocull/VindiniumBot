@@ -17,5 +17,10 @@ namespace VindiniumCore.GameTypes
         public int Y { get; set; }
 
         #endregion
+
+        public override string ToString()
+        {
+            return string.Format("X: {0}  Y: {1}", X, Y);
+        }
     }
 }
