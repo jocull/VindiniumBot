@@ -3,10 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using VindiniumCore.PathFinding;
 
 namespace VindiniumCore.GameTypes
 {
-    public class Board
+    public class Board : INodeSet
     {
         #region Core Properties
 
@@ -49,7 +50,6 @@ namespace VindiniumCore.GameTypes
         /// <summary>
         /// Rebuild the board given our tiles
         /// </summary>
-        /// <returns></returns>
         public override string ToString()
         {
             var lineStrings = Tiles.Select(line =>
@@ -60,5 +60,61 @@ namespace VindiniumCore.GameTypes
 
             return string.Join(Environment.NewLine, lineStrings);
         }
+
+        public string ToString(NodePath pathOverrides)
+        {
+            IEnumerable<NodePath> nodePaths = Enumerable.Empty<NodePath>();
+            if (pathOverrides != null)
+            {
+                nodePaths = pathOverrides.ParentNodePaths;
+            }
+
+            var lineStrings = Tiles.Select(line =>
+            {
+                var rowStrings = line.Select(tile =>
+                {
+                    if (nodePaths.Any(p => p.SourceNode == tile))
+                    {
+                        return "**";
+                    }
+                    else
+                    {
+                        return tile.ToString();
+                    }
+                });
+                return string.Join("", rowStrings);
+            });
+
+            return string.Join(Environment.NewLine, lineStrings);
+        }
+
+        #region INodeSet implementation
+
+        public Node GetNode(int x, int y)
+        {
+            if (x < 0
+                || y < 0
+                || x > (Size - 1)
+                || y > (Size - 1))
+            {
+                return null;
+            }
+
+            return Tiles[y][x];
+        }
+
+        public Node GetRelativeNode(Node baseNode, int x, int y)
+        {
+            //Apply the adjustment and search
+            return GetNode(baseNode.X + x,
+                           baseNode.Y + y);
+        }
+
+        public IEnumerable<Node> GetAllNodes()
+        {
+            return Tiles.SelectMany(x => x);
+        }
+
+        #endregion
     }
 }
