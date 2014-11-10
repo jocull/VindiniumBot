@@ -38,7 +38,7 @@ namespace VindiniumCore.PathFinding
             }
         }
 
-        public NodePath FindShortestPath(Node source, Node target, int iterationLimit = 10000)
+        public NodePath FindShortestPath(Node source, Node target, Func<Node, int> costForNode = null, int iterationLimit = 10000)
         {
             // Reset in case anything was present from another run
             _Reset(target);
@@ -73,53 +73,48 @@ namespace VindiniumCore.PathFinding
                 _ClosedList.Add(current);
 
                 // c) For each of the 4 squares adjacent to this current square...
-                for (int x = -1; x < 2; x++)
+                foreach (Node adjacent in _NodeSet.GetNeighboringNodes(current))
                 {
-                    for (int y = -1; y < 2; y++)
+                    // -) If it is not walkable or if it is on the closed list, ignore it.
+                    //    Otherwise do the following...
+                    //    *** Note: I added special cases here to not block our start or target nodes
+                    //              This is because you wouldn't move *through* them, but you can move *to* them.
+                    if (adjacent != null
+                        && (!adjacent.NodeBlocked || adjacent == source || adjacent == target)
+                        && !_ClosedList.Contains(adjacent))
                     {
-                        if ((x == 0 && y == 0)
-                            || (x != 0 && y != 0))
-                        {
-                            //Don't target the current node
-                            //Don't allow diagonals
-                            continue;
-                        }
+                        NodePath adjacentPath = _NodePaths[adjacent];
 
-                        // -) If it is not walkable or if it is on the closed list, ignore it.
-                        //    Otherwise do the following...
-                        //    *** Note: I added special cases here to not block our start or target nodes
-                        //              This is because you wouldn't move *through* them, but you can move *to* them.
-                        Node adjacent = _NodeSet.GetRelativeNode(current, x, y);
-                        if (adjacent != null
-                            && (!adjacent.NodeBlocked || adjacent == source || adjacent == target)
-                            && !_ClosedList.Contains(adjacent))
+                        if (!_OpenList.Contains(adjacent))
                         {
-                            NodePath adjacentPath = _NodePaths[adjacent];
-
-                            if (!_OpenList.Contains(adjacent))
+                            // -) If it isn’t on the open list, add it to the open list.
+                            //    Make the current square the parent of this square.
+                            //    Record the F, G, and H costs of the square.
+                            //    ***Note*** In this model, H doesn't change and F is automatic
+                            _OpenList.Add(adjacent);
+                            adjacentPath.ParentNodePath = currentPath;
+                            if (costForNode == null)
                             {
-                                // -) If it isn’t on the open list, add it to the open list.
-                                //    Make the current square the parent of this square.
-                                //    Record the F, G, and H costs of the square.
-                                //    ***Note*** In this model, H doesn't change and F is automatic
-                                _OpenList.Add(adjacent);
-                                adjacentPath.ParentNodePath = currentPath;
                                 adjacentPath.CostToThisPath = currentPath.CostToThisPath + adjacent.NodeMovementCost;
                             }
                             else
                             {
-                                // -) If it is on the open list already, check to see if this
-                                //    path to that square is better, using G cost as the measure.
-                                if (adjacentPath.CostToThisPath < currentPath.CostToThisPath)
-                                {
-                                    // A lower G cost means that this is a better path.
-                                    // If so, change the parent of the square to the current square,
-                                    adjacentPath.ParentNodePath = currentPath;
+                                adjacentPath.CostToThisPath = currentPath.CostToThisPath + costForNode(adjacent);
+                            }
+                        }
+                        else
+                        {
+                            // -) If it is on the open list already, check to see if this
+                            //    path to that square is better, using G cost as the measure.
+                            if (adjacentPath.CostToThisPath < currentPath.CostToThisPath)
+                            {
+                                // A lower G cost means that this is a better path.
+                                // If so, change the parent of the square to the current square,
+                                adjacentPath.ParentNodePath = currentPath;
 
-                                    // and recalculate the G and F scores of the square. If you are
-                                    // keeping your open list sorted by F score, you may need to resort
-                                    // the list to account for the change.
-                                }
+                                // and recalculate the G and F scores of the square. If you are
+                                // keeping your open list sorted by F score, you may need to resort
+                                // the list to account for the change.
                             }
                         }
                     }

@@ -77,17 +77,22 @@ namespace VindiniumCore.GameTypes
 
         #region Finding tiles
 
-        public IEnumerable<Tile> FindTiles(Func<Tile, bool> predicate)
+        public IEnumerable<Tile> FindTiles(Func<Tile, bool> predicate = null)
         {
+            if (predicate == null)
+            {
+                predicate = x => true;
+            }
+
             return Board.TilesFlattened.Where(x => predicate(x));
         }
 
-        public IEnumerable<Tile> FindHeroes(Func<Tile, bool> predicate)
+        public IEnumerable<Tile> FindHeroes(Func<Tile, bool> predicate = null)
         {
             return FindTiles(x => x.TileType == Tile.TileTypes.Hero).Where(x => predicate(x));
         }
 
-        public IEnumerable<Tile> FindGoldMines(Func<Tile, bool> predicate)
+        public IEnumerable<Tile> FindGoldMines(Func<Tile, bool> predicate = null)
         {
             return FindTiles(x => x.TileType == Tile.TileTypes.GoldMine).Where(x => predicate(x));
         }
@@ -101,9 +106,9 @@ namespace VindiniumCore.GameTypes
 
         #region Finding paths
 
-        public DirectionSet FindPath(Node source, Node target)
+        public DirectionSet FindPath(Node source, Node target, Func<Node, int> costForNode = null)
         {
-            var path = Pathfinder.FindShortestPath(source, target);
+            var path = Pathfinder.FindShortestPath(source, target, costForNode);
             if (path != null)
             {
                 return new DirectionSet(path);
@@ -111,26 +116,26 @@ namespace VindiniumCore.GameTypes
             return null;
         }
 
-        public IEnumerable<DirectionSet> FindPaths(Node source, IEnumerable<Tile> tiles)
+        public IEnumerable<DirectionSet> FindPaths(Node source, IEnumerable<Tile> tiles, Func<Node, int> costForNode = null)
         {
-            return tiles.Select(tile => FindPath(source, tile))
+            return tiles.Select(tile => FindPath(source, tile, costForNode))
                         .Where(x => x != null)
                         .OrderBy(x => x.Distance);
         }
 
-        public IEnumerable<DirectionSet> FindPathsToHeroes(Node source, Func<Tile, bool> predicate)
+        public IEnumerable<DirectionSet> FindPathsToHeroes(Node source, Func<Tile, bool> predicate = null, Func<Node, int> costForNode = null)
         {
             return FindPaths(source, FindHeroes(predicate));
         }
 
-        public IEnumerable<DirectionSet> FindPathsToGoldMines(Node source, Func<Tile, bool> predicate)
+        public IEnumerable<DirectionSet> FindPathsToGoldMines(Node source, Func<Tile, bool> predicate = null, Func<Node, int> costForNode = null)
         {
             return FindPaths(source, FindGoldMines(predicate));
         }
 
-        public IEnumerable<DirectionSet> FindPathsToTaverns(Node source, Func<Tile, bool> predicate)
+        public IEnumerable<DirectionSet> FindPathsToTaverns(Node source, Func<Tile, bool> predicate = null, Func<Node, int> costForNode = null)
         {
-            return FindPaths(source, FindTaverns(predicate));
+            return FindPaths(source, FindTaverns(predicate), costForNode);
         }
 
         #endregion
@@ -148,6 +153,12 @@ namespace VindiniumCore.GameTypes
                         .Where(x => x.OwnerId.HasValue)
                         .GroupBy(x => LookupHero(x))
                         .ToDictionary(x => x.Key, x => x.Select(y => y));
+        }
+
+        public IEnumerable<Tile> LookupGoldMinesForHero(Tile tile)
+        {
+            return FindTiles(x => x.TileType == Tile.TileTypes.GoldMine)
+                        .Where(x => x.OwnerId == tile.OwnerId);
         }
 
         public IDictionary<Hero, double> LookupGoldMineRatiosForHeros()
