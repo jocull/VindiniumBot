@@ -10,6 +10,7 @@ namespace VindiniumCore.PathFinding
     {
         Node GetNode(int x, int y);
         Node GetRelativeNode(Node baseNode, int x, int y);
+        IEnumerable<Node> GetNeighboringNodes(Node baseNode, int span = 1, bool diagonals = false);
         IEnumerable<Node> GetAllNodes();
     }
 }

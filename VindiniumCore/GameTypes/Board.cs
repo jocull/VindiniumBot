@@ -122,6 +122,38 @@ namespace VindiniumCore.GameTypes
                            baseNode.Y + y);
         }
 
+        public IEnumerable<Node> GetNeighboringNodes(Node baseNode, int span, bool diagonals)
+        {
+            for (int s = 1; s <= span; s++ )
+            {
+                for (int x = -1; x < 2; x++)
+                {
+                    for (int y = -1; y < 2; y++)
+                    {
+                        if (x == 0 && y == 0)
+                        {
+                            //Don't target the current node
+
+                            continue;
+                        }
+                        else if (!diagonals
+                                    && x != 0
+                                    && y != 0)
+                        {
+                            //Don't allow diagonals
+                            continue;
+                        }
+
+                        var node = GetRelativeNode(baseNode, x, y);
+                        if (node != null)
+                        {
+                            yield return node;
+                        }
+                    }
+                }
+            }
+        }
+
         public IEnumerable<Node> GetAllNodes()
         {
             return TilesFlattened;
