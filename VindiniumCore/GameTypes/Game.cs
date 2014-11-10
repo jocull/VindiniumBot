@@ -142,6 +142,23 @@ namespace VindiniumCore.GameTypes
             return Heroes.FirstOrDefault(x => x.ID == tile.OwnerId);
         }
 
+        public IDictionary<Hero, IEnumerable<Tile>> LookupGoldMinesForHeros()
+        {
+            return FindTiles(x => x.TileType == Tile.TileTypes.GoldMine)
+                        .Where(x => x.OwnerId.HasValue)
+                        .GroupBy(x => LookupHero(x))
+                        .ToDictionary(x => x.Key, x => x.Select(y => y));
+        }
+
+        public IDictionary<Hero, double> LookupGoldMineRatiosForHeros()
+        {
+            var mines = FindGoldMines(x => true).ToList();
+            var total = mines.Count;
+
+            return this.Heroes.ToDictionary(x => x,
+                                            x => mines.Where(gm => gm.OwnerId == x.ID).Count() / (double)mines.Count);
+        }
+
         #endregion
     }
 }
