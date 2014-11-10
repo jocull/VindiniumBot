@@ -19,26 +19,47 @@ namespace VindiniumBot.Bots
             Debug.WriteLine("The hero has {0:#,0} gold", gameState.MyHero.Gold);
             Debug.WriteLine("The hero is at {0}, {1}", gameState.MyHero.Position.X, gameState.MyHero.Position.Y);
 
-            //Find our hero
+            //Find our hero and important items
             var heroTile = gameState.FindMyHero();
+            var nearestTavern = gameState.Game.FindPathsToTaverns(heroTile, x => true).FirstOrDefault();
+            var nearestUnownedGoldMine = gameState.Game.FindPathsToGoldMines(heroTile, x => x.OwnerId != gameState.MyHero.ID).FirstOrDefault();
+            var nearestNonPlayerHero = gameState.Game.FindPathsToHeroes(heroTile, x => x.OwnerId != gameState.MyHero.ID).FirstOrDefault();
 
-            //If we're hurt, we should go heal.
-            if (gameState.MyHero.Life <= 40
+            //If we're < 100, have the gold, and already by a tavern, let's just stay there and top off
+            //Otherwise, if we're <= 40 health, go find the tavern and heal
+            if (nearestTavern != null
+                && (gameState.MyHero.Life <= 40
+                    || (gameState.MyHero.Life < 95
+                        && nearestTavern.Distance == 1))
                 && gameState.MyHero.Gold >= 2)
             {
-                //Find the nearest tavern and go heal up
-                var nearestTavern = gameState.Game.FindPathsToTaverns(heroTile, x => true).FirstOrDefault();
-
                 Debug.WriteLine("Going for the nearest tavern! ({0}, {1})", nearestTavern.TargetNode.X, nearestTavern.TargetNode.Y);
                 return nearestTavern.Directions.FirstOrDefault();
             }
 
-            //Find the nearest unowned gold mine and try to capture it
-            var nearestUnownedGoldMine = gameState.Game.FindPathsToGoldMines(heroTile, x => x.OwnerId != gameState.MyHero.ID)
-                                                       .FirstOrDefault();
+            //Is there a weaker hero nearby that we can attack?
+            if (nearestUnownedGoldMine != null
+                && nearestNonPlayerHero != null
+                && nearestNonPlayerHero.Distance < nearestUnownedGoldMine.Distance)
+            {
+                var hero = gameState.Game.LookupHero(nearestNonPlayerHero.TargetNode as Tile);
+                if (hero != null
+                    && hero.Life <= (gameState.MyHero.Life - 20))
+                {
+                    //Go for it
+                    return nearestNonPlayerHero.Directions.FirstOrDefault();
+                }
+            }
 
-            Debug.WriteLine("Going for the nearest gold mine! ({0}, {1})", nearestUnownedGoldMine.TargetNode.X, nearestUnownedGoldMine.TargetNode.Y);
-            return nearestUnownedGoldMine.Directions.FirstOrDefault();
+            //Find the nearest unowned gold mine and try to capture it
+            if (nearestUnownedGoldMine != null)
+            {
+                Debug.WriteLine("Going for the nearest gold mine! ({0}, {1})", nearestUnownedGoldMine.TargetNode.X, nearestUnownedGoldMine.TargetNode.Y);
+                return nearestUnownedGoldMine.Directions.FirstOrDefault();
+            }
+
+            //Don't go anywhere if there's truly nothing to do...
+            return Directions.Stay;
         }
     }
 }
