@@ -134,5 +134,14 @@ namespace VindiniumCore.GameTypes
         }
 
         #endregion
+
+        #region Lookups and helpers
+
+        public Hero LookupHero(Tile tile)
+        {
+            return Heroes.FirstOrDefault(x => x.ID == tile.OwnerId);
+        }
+
+        #endregion
     }
 }
