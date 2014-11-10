@@ -26,7 +26,7 @@ namespace VindiniumBot
         [Option('t',
                 "turns",
                 Required = false,
-                DefaultValue = (uint)100,
+                DefaultValue = (uint)300,
                 HelpText = "Number of turns to run in training mode")]
         public uint NumberOfTurns { get; set; }
 
