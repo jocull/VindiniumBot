@@ -8,6 +8,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using VindiniumCore;
 using VindiniumCore.Bot;
 using VindiniumCore.GameTypes;
 
@@ -110,13 +111,13 @@ namespace VindiniumBot
             }
 
             //Do it
-            Debug.WriteLine("Fetching game state...");
+            CoreHelpers.OutputLine("Fetching game state...");
             var json = _PostMessage(url, data);
 
             //Decode and return the GameState
             GameState state = _GameStateFromJson(json);
-            Debug.WriteLine("Got game state!");
-            Debug.WriteLine("View at " + state.ViewUrl);
+            CoreHelpers.OutputLine("Got game state!");
+            CoreHelpers.OutputLine("View at " + state.ViewUrl);
 
             if (Debugger.IsAttached)
             {
@@ -135,7 +136,7 @@ namespace VindiniumBot
             data["key"] = Options.PrivateKey;
             data["dir"] = move.ToString();
 
-            Debug.WriteLine("Sending move: " + move);
+            CoreHelpers.OutputLine("Sending move: " + move);
             string json = _PostMessage(state.PlayUrl, data);
             return _GameStateFromJson(json);
         }

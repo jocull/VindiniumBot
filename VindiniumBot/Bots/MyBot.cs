@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VindiniumCore;
 using VindiniumCore.Bot;
 using VindiniumCore.GameTypes;
 using VindiniumCore.PathFinding;
@@ -17,11 +18,11 @@ namespace VindiniumBot.Bots
             Game game = state.Game;
             Hero myHero = state.MyHero;
 
-            Debug.WriteLine("");
-            Debug.WriteLine("It's now turn {0:#,0} of {1:#,0}", game.Turn, game.MaxTurns);
-            Debug.WriteLine("The hero has {0:#,0} HP", myHero.Life);
-            Debug.WriteLine("The hero has {0:#,0} gold", myHero.Gold);
-            Debug.WriteLine("The hero is at {0}, {1}", myHero.Position.X, myHero.Position.Y);
+            CoreHelpers.OutputLine("");
+            CoreHelpers.OutputLine("It's now turn {0:#,0} of {1:#,0}", game.Turn, game.MaxTurns);
+            CoreHelpers.OutputLine("The hero has {0:#,0} HP", myHero.Life);
+            CoreHelpers.OutputLine("The hero has {0:#,0} gold", myHero.Gold);
+            CoreHelpers.OutputLine("The hero is at {0}, {1}", myHero.Position.X, myHero.Position.Y);
 
             const double goldMineTargetRatio = 0.25d; //More than your fair share!
 
@@ -38,7 +39,7 @@ namespace VindiniumBot.Bots
                         Hero h = game.LookupHero(nt);
                         if (h.Life > myHero.Life)
                         {
-                            //Debug.WriteLine("*** AVOID HERO PATH {0} - {1}!", h.Name, h.Position);
+                            //CoreHelpers.OutputLine("*** AVOID HERO PATH {0} - {1}!", h.Name, h.Position);
                             return true; //Avoid stronger heros!
                         }
                     }
@@ -72,13 +73,13 @@ namespace VindiniumBot.Bots
                     if (nearestUnownedGoldMine != null
                         && nearestUnownedGoldMine.Distance > 1)
                     {
-                        Debug.WriteLine("Fleeing spawn to nearest gold mine! ({0}, {1})", nearestUnownedGoldMine.TargetNode.X, nearestUnownedGoldMine.TargetNode.Y);
+                        CoreHelpers.OutputLine("Fleeing spawn to nearest gold mine! ({0}, {1})", nearestUnownedGoldMine.TargetNode.X, nearestUnownedGoldMine.TargetNode.Y);
                         return nearestUnownedGoldMine.Directions.FirstOrDefault();
                     }
                     else if (nearestTavern != null
                                 && nearestTavern.Distance > 1)
                     {
-                        Debug.WriteLine("Fleeing spawn to nearest tavern! ({0}, {1})", nearestTavern.TargetNode.X, nearestTavern.TargetNode.Y);
+                        CoreHelpers.OutputLine("Fleeing spawn to nearest tavern! ({0}, {1})", nearestTavern.TargetNode.X, nearestTavern.TargetNode.Y);
                         return nearestTavern.Directions.FirstOrDefault();
                     }
                 }
@@ -92,7 +93,7 @@ namespace VindiniumBot.Bots
                         && nearestTavern.Distance <= 1))
                 && myHero.Gold >= 2)
             {
-                Debug.WriteLine("Going for the nearest safe tavern! ({0}, {1})", nearestTavern.TargetNode.X, nearestTavern.TargetNode.Y);
+                CoreHelpers.OutputLine("Going for the nearest safe tavern! ({0}, {1})", nearestTavern.TargetNode.X, nearestTavern.TargetNode.Y);
                 return nearestTavern.Directions.FirstOrDefault();
             }
 
@@ -114,7 +115,7 @@ namespace VindiniumBot.Bots
                         && (myHero.Life - 20) > targetHero.Life
                         && (targetHeroPath.Distance < nearestUnownedGoldMine.Distance))
                     {
-                        Debug.WriteLine("Going to kill {0} for the $$$! ({1}, {2})", targetHero.Name, targetHeroPath.TargetNode.X, targetHeroPath.TargetNode.Y);
+                        CoreHelpers.OutputLine("Going to kill {0} for the $$$! ({1}, {2})", targetHero.Name, targetHeroPath.TargetNode.X, targetHeroPath.TargetNode.Y);
                         return targetHeroPath.Directions.FirstOrDefault();
                     }
                 }
@@ -130,7 +131,7 @@ namespace VindiniumBot.Bots
                     && hero.Life <= (myHero.Life - 20))
                 {
                     //Go for it
-                    Debug.WriteLine("Going to pick off {0}! ({1}, {2})", hero.Name, hero.Position.X, hero.Position.Y);
+                    CoreHelpers.OutputLine("Going to pick off {0}! ({1}, {2})", hero.Name, hero.Position.X, hero.Position.Y);
                     return nearestNonPlayerHeroWithMines.Directions.FirstOrDefault();
                 }
             }
@@ -138,12 +139,12 @@ namespace VindiniumBot.Bots
             //Find the nearest unowned gold mine and try to capture it
             if (nearestUnownedGoldMine != null)
             {
-                Debug.WriteLine("Going for the nearest gold mine! ({0}, {1})", nearestUnownedGoldMine.TargetNode.X, nearestUnownedGoldMine.TargetNode.Y);
+                CoreHelpers.OutputLine("Going for the nearest gold mine! ({0}, {1})", nearestUnownedGoldMine.TargetNode.X, nearestUnownedGoldMine.TargetNode.Y);
                 return nearestUnownedGoldMine.Directions.FirstOrDefault();
             }
 
             //Don't go anywhere if there's truly nothing to do...
-            Debug.WriteLine("Snoozing...");
+            CoreHelpers.OutputLine("Snoozing...");
             return Directions.Stay;
         }
     }
