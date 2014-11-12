@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using VindiniumBot.Bots;
+using VindiniumCore;
 
 namespace VindiniumBot
 {
@@ -22,7 +23,7 @@ namespace VindiniumBot
                 }
                 catch(Exception ex)
                 {
-                    Console.WriteLine(ex);
+                    CoreHelpers.OutputLine(ex.ToString());
                     throw;
                 }
             }
