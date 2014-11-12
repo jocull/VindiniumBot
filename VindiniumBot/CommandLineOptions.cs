@@ -44,6 +44,13 @@ namespace VindiniumBot
                 HelpText = "HTTP URL of Vindinium server")]
         public string ServerUrl { get; set; }
 
+        [Option('e',
+                "endless",
+                Required = false,
+                DefaultValue = false,
+                HelpText = "Continually queue games?")]
+        public bool EndlessMode { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {

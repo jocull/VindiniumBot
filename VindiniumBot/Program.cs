@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using VindiniumBot.Bots;
 using VindiniumCore;
@@ -19,7 +20,22 @@ namespace VindiniumBot
                 {
                     MyBot bot = new MyBot();
                     BotClient client = new BotClient(options, bot);
-                    client.Run();
+
+                    while (true)
+                    {
+                        client.Run();
+
+                        if (options.EndlessMode)
+                        {
+                            CoreHelpers.OutputLine("Sleeping for 15 seconds before starting next time...");
+                            Thread.Sleep(15 * 1000);
+                        }
+                        else
+                        {
+                            //End the program
+                            return;
+                        }
+                    }
                 }
                 catch(Exception ex)
                 {
