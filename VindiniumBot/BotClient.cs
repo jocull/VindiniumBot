@@ -40,8 +40,9 @@ namespace VindiniumBot
         {
             try
             {
-                using (var wc = new WebClient())
+                using (var wc = new BotWebClient())
                 {
+                    
                     var responseBytes = wc.UploadValues(url, "POST", data);
                     var responseString = Encoding.UTF8.GetString(responseBytes);
 
