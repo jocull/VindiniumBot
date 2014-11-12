@@ -25,7 +25,7 @@ namespace VindiniumBot.Bots
             CoreHelpers.OutputLine("The hero has {0:#,0} gold", myHero.Gold);
             CoreHelpers.OutputLine("The hero is at {0}, {1}", myHero.Position.X, myHero.Position.Y);
 
-            const double goldMineTargetRatio = 0.25d; //More than your fair share!
+            const double goldMineTargetRatio = 0.275d; //More than your fair share!
 
             var safeTravelFunction = new Func<Node, int>(node =>
             {
