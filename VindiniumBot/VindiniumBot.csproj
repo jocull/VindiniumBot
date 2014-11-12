@@ -47,6 +47,9 @@
   <ItemGroup>
     <Compile Include="BotClient.cs" />
     <Compile Include="Bots\MyBot.cs" />
+    <Compile Include="BotWebClient.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
