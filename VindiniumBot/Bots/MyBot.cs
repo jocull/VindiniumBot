@@ -17,7 +17,6 @@ namespace VindiniumBot.Bots
         {
             Game game = state.Game;
             Hero myHero = state.MyHero;
-            Tile myHeroTile = state.FindMyHero();
 
             CoreHelpers.OutputLine("");
             CoreHelpers.OutputLine("It's now turn {0:#,0} of {1:#,0}", game.Turn, game.MaxTurns);
@@ -26,6 +25,12 @@ namespace VindiniumBot.Bots
             CoreHelpers.OutputLine("The hero is at {0}, {1}", myHero.Position.X, myHero.Position.Y);
 
             const double goldMineTargetRatio = 0.275d; //More than your fair share!
+
+            //Precalculate paths to other heros
+            Tile myHeroTile = state.FindMyHero();
+            Dictionary<Hero, DirectionSet> heroPaths = game.FindPathsToHeroes(myHeroTile, t => t.OwnerId != myHeroTile.OwnerId)
+                                                           .ToDictionary(x => game.LookupHero(x.TargetNode as Tile),
+                                                                         x => x);
 
             var safeTravelFunction = new Func<Node, int>(node =>
             {
@@ -41,7 +46,8 @@ namespace VindiniumBot.Bots
                     {
                         //Dangerous heros nearby!
                         Hero h = game.LookupHero(x);
-                        var pathToThisHero = game.FindPath(myHeroTile, x);
+                        DirectionSet pathToThisHero = null;
+                        heroPaths.TryGetValue(h, out pathToThisHero);
                         if (pathToThisHero != null 
                             && pathToThisHero.Distance <= 4
                             && h.Life > (myHero.Life - 10))
