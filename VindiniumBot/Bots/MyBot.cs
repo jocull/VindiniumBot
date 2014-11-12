@@ -17,6 +17,7 @@ namespace VindiniumBot.Bots
         {
             Game game = state.Game;
             Hero myHero = state.MyHero;
+            Tile myHeroTile = state.FindMyHero();
 
             CoreHelpers.OutputLine("");
             CoreHelpers.OutputLine("It's now turn {0:#,0} of {1:#,0}", game.Turn, game.MaxTurns);
@@ -31,6 +32,7 @@ namespace VindiniumBot.Bots
                 Tile t = node as Tile;
                 var neighbors = state.Game.Board.GetNeighboringNodes(t, 3, true).Select(x => x as Tile);
 
+                int totalCost = 1;  //Default
                 foreach (var x in neighbors)
                 {
                     //Any heros in the area?
@@ -39,19 +41,20 @@ namespace VindiniumBot.Bots
                     {
                         //Dangerous heros nearby!
                         Hero h = game.LookupHero(x);
-                        if (h.Life > (myHero.Life - 10))
+                        var pathToThisHero = game.FindPath(myHeroTile, x);
+                        if (pathToThisHero.Distance <= 4
+                            && h.Life > (myHero.Life - 10))
                         {
                             //Avoid!
-                            return 20;
+                            totalCost += 10 * Math.Abs(pathToThisHero.Distance - 5);
                         }
                     }
                 }
 
-                return 1; //Default
+                return totalCost;
             });
 
             //Find our hero and important items
-            var myHeroTile = state.FindMyHero();
             var nearestTavern = game.FindPathsToTaverns(myHeroTile, x => true, safeTravelFunction).FirstOrDefault();
             var nearestUnownedGoldMine = game.FindPathsToGoldMines(myHeroTile, x => x.OwnerId != myHero.ID, safeTravelFunction).FirstOrDefault();
             var nearestNonPlayerHero = game.FindPathsToHeroes(myHeroTile, x => x.OwnerId != myHero.ID, safeTravelFunction).FirstOrDefault();
