@@ -27,7 +27,7 @@ namespace VindiniumBot
 
                         if (options.EndlessMode)
                         {
-                            CoreHelpers.OutputLine("Sleeping for 15 seconds before starting next time...");
+                            CoreHelpers.OutputLine("Sleeping for 15 seconds before starting again...");
                             Thread.Sleep(15 * 1000);
                         }
                         else
