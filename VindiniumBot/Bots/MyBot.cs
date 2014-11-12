@@ -42,7 +42,8 @@ namespace VindiniumBot.Bots
                         //Dangerous heros nearby!
                         Hero h = game.LookupHero(x);
                         var pathToThisHero = game.FindPath(myHeroTile, x);
-                        if (pathToThisHero.Distance <= 4
+                        if (pathToThisHero != null 
+                            && pathToThisHero.Distance <= 4
                             && h.Life > (myHero.Life - 10))
                         {
                             //Avoid!
