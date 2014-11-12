@@ -58,23 +58,6 @@ namespace VindiniumCore.GameTypes
             return JsonConvert.DeserializeObject<Game>(json);
         }
 
-        #region Pathfinding properties
-
-        private PathFinder _Pathfinder;
-        public PathFinder Pathfinder
-        {
-            get
-            {
-                if (_Pathfinder == null)
-                {
-                    _Pathfinder = new PathFinder(Board);
-                }
-                return _Pathfinder;
-            }
-        }
-        
-        #endregion
-
         #region Finding tiles
 
         public IEnumerable<Tile> FindTiles(Func<Tile, bool> predicate = null)
@@ -108,7 +91,8 @@ namespace VindiniumCore.GameTypes
 
         public DirectionSet FindPath(Node source, Node target, Func<Node, int> costForNode = null)
         {
-            var path = Pathfinder.FindShortestPath(source, target, costForNode);
+            var pathfinder = new PathFinder(Board);
+            var path = pathfinder.FindShortestPath(source, target, costForNode);
             if (path != null)
             {
                 return new DirectionSet(path);
