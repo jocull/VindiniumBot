@@ -104,7 +104,7 @@ namespace VindiniumCore.GameTypes
         {
             return tiles.Select(tile => FindPath(source, tile, costForNode))
                         .Where(x => x != null)
-                        .OrderBy(x => x.Distance);
+                        .OrderBy(x => x.Cost); //Cost, not distance! Factors in dynamic costing.
         }
 
         public IEnumerable<DirectionSet> FindPathsToHeroes(Node source, Func<Tile, bool> predicate = null, Func<Node, int> costForNode = null)
