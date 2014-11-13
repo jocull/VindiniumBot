@@ -215,7 +215,7 @@ namespace VindiniumBot.Bots
                             //Is there another gold mine nearby we can get easily?
                             if (nearestTavern.Distance <= 3
                                 && nearestUnownedGoldMine != null
-                                && nearestUnownedGoldMine.Distance <= 3
+                                && nearestUnownedGoldMine.Distance <= 4 //Extra space so we'll capture it by moving "into it"...
                                 && myHero.Life >= 60)
                             {
                                 CoreHelpers.OutputLine("Going to snag gold mine near camp site! ({0}, {1})", nearestUnownedGoldMine.TargetNode.X, nearestUnownedGoldMine.TargetNode.Y);
