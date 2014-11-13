@@ -51,6 +51,13 @@ namespace VindiniumBot
                 HelpText = "Continually queue games?")]
         public bool EndlessMode { get; set; }
 
+        [Option('b',
+                "benchmark",
+                Required = false,
+                DefaultValue = false,
+                HelpText = "Basic benchmark mode to help check for load anomalies, especially in VMs")]
+        public bool BenchmarkMode { get; set; }
+
         [HelpOption]
         public string GetUsage()
         {

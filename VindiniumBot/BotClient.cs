@@ -27,6 +27,15 @@ namespace VindiniumBot
 
         public void Run()
         {
+            if (this.Options.BenchmarkMode)
+            {
+                CoreHelpers.OutputLine("Running benchmark mode... This will never end.");
+                CoreHelpers.OutputLine("You should expect times from each run to be fairly consistent.");
+                CoreHelpers.OutputLine("Large differences in times could indicate a poorly shared server.");
+                _Benchmark(); //Never ends...
+                return;
+            }
+
             GameState state = null;
             try
             {
@@ -40,11 +49,18 @@ namespace VindiniumBot
                 }
                 throw; //Rethrow
             }
+
+            Stopwatch sw = new Stopwatch();
             while (!state.Game.Finished)
             {
                 //Get and send the next move
+                sw.Restart();
                 Directions move = Bot.GetHeroMove(state);
+                CoreHelpers.OutputLine("Calculate move: {0:#,0} ms", sw.ElapsedMilliseconds);
+
+                sw.Restart();
                 state = _SendMove(state, move);
+                CoreHelpers.OutputLine("Get new game state: {0:#,0} ms", sw.ElapsedMilliseconds);
             }
 
             //At the end of the game, report the outcome
@@ -162,6 +178,24 @@ namespace VindiniumBot
             CoreHelpers.OutputLine("Sending move: " + move);
             string json = _PostMessage(state.PlayUrl, data);
             return _GameStateFromJson(json);
+        }
+
+        private void _Benchmark()
+        {
+            Stopwatch sw = new Stopwatch();
+            while (true)
+            {
+                sw.Restart();
+
+                int i = 0;
+                const int iMax = 1000000000;
+                while (i < iMax)
+                {
+                    i++;
+                }
+
+                CoreHelpers.OutputLine("{0:#,0} iterations in {1:#,0} ms", iMax, sw.ElapsedMilliseconds);
+            }
         }
     }
 }
