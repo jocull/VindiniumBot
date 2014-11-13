@@ -27,13 +27,35 @@ namespace VindiniumBot
 
         public void Run()
         {
-            GameState state = _BeginGame();
+            GameState state = null;
+            try
+            {
+                 state = _BeginGame();
+            }
+            catch (WebException ex)
+            {
+                if (ex.Status == WebExceptionStatus.Timeout)
+                {
+                    throw new TimeoutWebException("Timed out while searching for game...");
+                }
+                throw; //Rethrow
+            }
             while (!state.Game.Finished)
             {
                 //Get and send the next move
                 Directions move = Bot.GetHeroMove(state);
                 state = _SendMove(state, move);
             }
+
+            //At the end of the game, report the outcome
+            var heroRankings = state.Game.Heroes.OrderByDescending(x => x.Gold);
+            CoreHelpers.OutputLine("Final scores:");
+            CoreHelpers.OutputLine("=======================");
+            foreach (var h in heroRankings)
+            {
+                CoreHelpers.OutputLine(h.ToString());
+            }
+            CoreHelpers.OutputLine("");
         }
 
         private string _PostMessage(string url, NameValueCollection data)
@@ -112,12 +134,12 @@ namespace VindiniumBot
             }
 
             //Do it
-            CoreHelpers.OutputLine("Fetching game state...");
+            CoreHelpers.OutputLine("Searching for new game...");
             var json = _PostMessage(url, data);
 
             //Decode and return the GameState
             GameState state = _GameStateFromJson(json);
-            CoreHelpers.OutputLine("Got game state!");
+            CoreHelpers.OutputLine("Got new game state!");
             CoreHelpers.OutputLine("View at " + state.ViewUrl);
 
             if (Debugger.IsAttached)

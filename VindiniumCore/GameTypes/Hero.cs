@@ -49,5 +49,16 @@ namespace VindiniumCore.GameTypes
         {
             return JsonConvert.DeserializeObject<Hero>(json);
         }
+
+        public override string ToString()
+        {
+            string result = string.Format("{0} - {1:#,0} gold", Name, Gold);
+            if (Crashed)
+            {
+                result += " (crashed)";
+            }
+
+            return result;
+        }
     }
 }
