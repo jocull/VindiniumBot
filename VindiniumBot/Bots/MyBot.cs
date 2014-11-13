@@ -224,7 +224,16 @@ namespace VindiniumBot.Bots
 
                             //Well camping is always nice thought!
                             CoreHelpers.OutputLine("Going to camp (tavern) because we are winning! ({0}, {1})", nearestTavern.TargetNode.X, nearestTavern.TargetNode.Y);
-                            return nearestTavern.Directions.FirstOrDefault();
+                            if (nearestTavern.Distance == 1
+                                && myHero.Life > 50)
+                            {
+                                //We're healthy. No reason to spend the gold.
+                                return Directions.Stay;
+                            }
+                            else
+                            {
+                                return nearestTavern.Directions.FirstOrDefault();
+                            }
                         }
                     }
                     else
