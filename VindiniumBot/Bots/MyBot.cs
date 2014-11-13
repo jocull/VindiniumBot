@@ -108,9 +108,9 @@ namespace VindiniumBot.Bots
                     //          @1[]
                     //Block mines that will get us stuck
                     var adjacentNodes = game.Board.GetNeighboringNodes(x, 1, true).Select(n => n as Tile);
-                    if (adjacentNodes.Any(t => t.TileType == Tile.TileTypes.Hero && t.OwnerId != myHero.ID) //enemy hero
-                        && adjacentNodes.Any(t => t.TileType == Tile.TileTypes.Tavern)) //tavern
+                    if (adjacentNodes.Any(t => t.TileType == Tile.TileTypes.Hero && t.OwnerId != myHero.ID)) //enemy hero
                     {
+                        //Don't consider mines that have a hero nearby...
                         return false;
                     }
                     else
@@ -240,7 +240,9 @@ namespace VindiniumBot.Bots
                     {
                         //Get the hero that we should gank
                         Hero targetHero = ratio.Key;
+                        var targetHeroTile = game.FindTiles(x => x.TileType == Tile.TileTypes.Hero && x.OwnerId == targetHero.ID).FirstOrDefault();
                         var targetHeroPath = game.FindPathsToHeroes(myHeroTile, x => x.OwnerId == ratio.Key.ID, safeTravelFunction).FirstOrDefault();
+                        var targetHeroPathToTavern = game.FindPathsToTaverns(targetHeroTile, x => true).FirstOrDefault();
 
                         //Are we healthy enough to do it?
                         if (targetHeroPath != null
@@ -249,8 +251,13 @@ namespace VindiniumBot.Bots
                             && targetHero.Life < myHero.Life
                             && (targetHeroPath.Distance < (nearestUnownedGoldMine.Distance + 2)))
                         {
-                            CoreHelpers.OutputLine("Going to kill {0} for the $$$! ({1}, {2})", targetHero.Name, targetHeroPath.TargetNode.X, targetHeroPath.TargetNode.Y);
-                            return targetHeroPath.Directions.FirstOrDefault();
+                            if (targetHeroPathToTavern == null
+                                || targetHeroPathToTavern.Distance > 1)
+                            {
+                                //Don't attack players right by taverns
+                                CoreHelpers.OutputLine("Going to kill {0} for the $$$! ({1}, {2})", targetHero.Name, targetHeroPath.TargetNode.X, targetHeroPath.TargetNode.Y);
+                                return targetHeroPath.Directions.FirstOrDefault();
+                            }
                         }
                     }
                 }
