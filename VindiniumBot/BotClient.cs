@@ -18,11 +18,13 @@ namespace VindiniumBot
     {
         public CommandLineOptions Options { get; private set; }
         public IRobot Bot { get; private set; }
+        private Stopwatch _Timer { get; set; }
 
         public BotClient(CommandLineOptions options, IRobot bot)
         {
             this.Options = options;
             this.Bot = bot;
+            this._Timer = new Stopwatch();
         }
 
         public void Run()
@@ -50,17 +52,14 @@ namespace VindiniumBot
                 throw; //Rethrow
             }
 
-            Stopwatch sw = new Stopwatch();
             while (!state.Game.Finished)
             {
                 //Get and send the next move
-                sw.Restart();
+                _Timer.Restart();
                 Directions move = Bot.GetHeroMove(state);
-                CoreHelpers.OutputLine("Calculate move: {0:#,0} ms", sw.ElapsedMilliseconds);
+                CoreHelpers.OutputLine("Calculate move: {0:#,0} ms", _Timer.ElapsedMilliseconds);
 
-                sw.Restart();
                 state = _SendMove(state, move);
-                CoreHelpers.OutputLine("Get new game state: {0:#,0} ms", sw.ElapsedMilliseconds);
             }
 
             //At the end of the game, report the outcome
@@ -175,9 +174,16 @@ namespace VindiniumBot
             data["key"] = Options.PrivateKey;
             data["dir"] = move.ToString();
 
+            _Timer.Restart();
             CoreHelpers.OutputLine("Sending move: " + move);
             string json = _PostMessage(state.PlayUrl, data);
-            return _GameStateFromJson(json);
+            CoreHelpers.OutputLine("Response time: {0:#,0} ms", _Timer.ElapsedMilliseconds);
+
+            _Timer.Restart();
+            GameState newState = _GameStateFromJson(json);
+            CoreHelpers.OutputLine("Parsing time: {0:#,0} ms", _Timer.ElapsedMilliseconds);
+
+            return newState;
         }
 
         private void _Benchmark()
