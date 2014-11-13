@@ -19,4 +19,13 @@ namespace VindiniumBot
             return w;
         }
     }
+
+    internal class TimeoutWebException : WebException
+    {
+        public TimeoutWebException(string message)
+            : base(message)
+        {
+
+        }
+    }
 }

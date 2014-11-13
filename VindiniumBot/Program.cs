@@ -23,7 +23,15 @@ namespace VindiniumBot
 
                     while (true)
                     {
-                        client.Run();
+                        try
+                        {
+                            client.Run();
+                        }
+                        catch (TimeoutWebException)
+                        {
+                            //Eat the timeout exception
+                            CoreHelpers.OutputLine("Timed out while searching for game.");
+                        }
 
                         if (options.EndlessMode)
                         {
