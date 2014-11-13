@@ -13,7 +13,8 @@ namespace VindiniumCore.GameTypes
         public Node TargetNode { get; private set; }
         public IEnumerable<Node> NodeSequence { get; private set; }
         public IEnumerable<Directions> Directions { get; private set; }
-        
+        public int Cost { get; private set; }
+
         public int Distance
         {
             get { return Directions.Count(); }
@@ -23,6 +24,7 @@ namespace VindiniumCore.GameTypes
         {
             this.TargetNode = targetNodePath.SourceNode;
             this.SourceNode = targetNodePath.ParentNodePaths.Last().SourceNode;
+            this.Cost = targetNodePath.CostToThisPath;
 
             //Calculate the directions we will need to take
             var fullNodeSequence = targetNodePath.ParentNodePaths
