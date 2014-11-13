@@ -24,14 +24,16 @@ namespace VindiniumBot.Bots
             CoreHelpers.OutputLine("The hero has {0:#,0} gold", myHero.Gold);
             CoreHelpers.OutputLine("The hero is at {0}, {1}", myHero.Position.X, myHero.Position.Y);
 
-            const double goldMineTargetRatio = 0.275d; //More than your fair share!
+            const double goldMineTargetRatio = 0.255d; //More than your fair share!
 
             //Precalculate paths to other heros
             Tile myHeroTile = state.FindMyHero();
             Dictionary<Hero, DirectionSet> heroPaths = game.FindPathsToHeroes(myHeroTile, t => t.OwnerId != myHeroTile.OwnerId)
                                                            .ToDictionary(x => game.LookupHero(x.TargetNode as Tile),
                                                                          x => x);
+            int mostPlayerGold = game.Heroes.Max(x => x.Gold);
 
+            //How safe should we be traveling right now?
             var safeTravelFunction = new Func<Node, int>(node =>
             {
                 Tile t = node as Tile;
@@ -44,16 +46,16 @@ namespace VindiniumBot.Bots
                     if (x.TileType == Tile.TileTypes.Hero
                         && x.OwnerId != myHero.ID)
                     {
-                        //Dangerous heros nearby!
+                        //Dangerous heros nearby?
                         Hero h = game.LookupHero(x);
                         DirectionSet pathToThisHero = null;
                         heroPaths.TryGetValue(h, out pathToThisHero);
                         if (pathToThisHero != null 
-                            && pathToThisHero.Distance <= 4
-                            && h.Life > (myHero.Life - 10))
+                            && pathToThisHero.Distance <= 4 //Chase distance
+                            && h.Life > myHero.Life)
                         {
                             //Avoid!
-                            totalCost += 10 * Math.Abs(pathToThisHero.Distance - 5);
+                            totalCost += 30;
                         }
                     }
                 }
@@ -61,11 +63,65 @@ namespace VindiniumBot.Bots
                 return totalCost;
             });
 
-            //Find our hero and important items
-            var nearestTavern = game.FindPathsToTaverns(myHeroTile, x => true, safeTravelFunction).FirstOrDefault();
-            var nearestUnownedGoldMine = game.FindPathsToGoldMines(myHeroTile, x => x.OwnerId != myHero.ID, safeTravelFunction).FirstOrDefault();
-            var nearestNonPlayerHero = game.FindPathsToHeroes(myHeroTile, x => x.OwnerId != myHero.ID, safeTravelFunction).FirstOrDefault();
-            var nearestNonPlayerHeroWithMines = game.FindPathsToHeroes(myHeroTile, x => x.OwnerId != myHero.ID && game.LookupGoldMinesForHero(x).Any(), safeTravelFunction).FirstOrDefault();
+            //Where are the nearest safe taverns?
+            var nearestTavern = game.FindPathsToTaverns(myHeroTile, x =>
+            {
+                return true;
+            }, safeTravelFunction).FirstOrDefault(); //The safe travel function here should avoid confrontations
+
+            //Where's the nearest non-player hero?
+            var nearestNonPlayerHero = game.FindPathsToHeroes(myHeroTile, x =>
+            {
+                if (x.OwnerId != myHero.ID)
+                {
+                    return true;
+                }
+                return false;
+            }, safeTravelFunction).FirstOrDefault();
+
+            //How about the nearest non-player hero with mines?
+            var nearestNonPlayerHeroWithMines = game.FindPathsToHeroes(myHeroTile, x =>
+            {
+                if (x.OwnerId != myHero.ID
+                    && game.LookupGoldMinesForHero(x).Any())
+                {
+                    //Don't consider heroes that are sitting by a tavern
+                    var adjacentNodes = game.Board.GetNeighboringNodes(x, 1, false).Select(n => n as Tile);
+                    if (adjacentNodes.Any(t => t.TileType == Tile.TileTypes.Tavern))
+                    {
+                        //We'll just get killed trying that...
+                        return false;
+                    }
+                    return true;
+                }
+                return false;
+            }, safeTravelFunction).FirstOrDefault();
+
+            //Where's the nearest unowned gold mine?
+            var nearestUnownedGoldMine = game.FindPathsToGoldMines(myHeroTile, x =>
+            {
+                //Block mines we own
+                if (x.OwnerId != myHero.ID)
+                {
+                    //We'll get stuck if in this situation...
+                    //          $-@2
+                    //          @1[]
+                    //Block mines that will get us stuck
+                    var adjacentNodes = game.Board.GetNeighboringNodes(x, 1, true).Select(n => n as Tile);
+                    if (adjacentNodes.Any(t => t.TileType == Tile.TileTypes.Hero && t.OwnerId != myHero.ID) //enemy hero
+                        && adjacentNodes.Any(t => t.TileType == Tile.TileTypes.Tavern)) //tavern
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }, safeTravelFunction).FirstOrDefault();
+
+            //Find the gold mine ratios
             var goldMineRatios = game.LookupGoldMineRatiosForHeros();
 
             //Don't get pinned by a spawn point!
@@ -94,20 +150,27 @@ namespace VindiniumBot.Bots
             //How safe should we be playing right now?
             int minimumHealth = 20;
             int nearestPlayerDistance = 99;
+            Hero nearestPlayer = null;
             int myOwnedMinesCount = game.LookupGoldMinesForHero(myHeroTile).Count();
             if (nearestNonPlayerHero != null)
             {
+                nearestPlayer = game.LookupHero(nearestNonPlayerHero.TargetNode as Tile);
                 nearestPlayerDistance = nearestNonPlayerHero.Distance;
             }
 
             //There's no need to play it *THAT* safe if there isn't somebody nearby...
             if (myOwnedMinesCount > 1
-                && nearestPlayerDistance <= 4)
+                && nearestPlayerDistance <= 4
+                && nearestPlayer != null
+                && nearestPlayer.Life >= myHero.Life)
+                
             {
                 minimumHealth = 40;
             }
             else if (myOwnedMinesCount > 3
-                     && nearestPlayerDistance <= 4)
+                     && nearestPlayerDistance <= 4
+                     && nearestPlayer != null
+                     && nearestPlayer.Life >= myHero.Life)
             {
                 //This will likely lead us to kiting back to taverns
                 minimumHealth = 50;
@@ -131,8 +194,6 @@ namespace VindiniumBot.Bots
                 var ratio = goldMineRatios.OrderByDescending(x => x.Value).First();
                 if (ratio.Value >= goldMineTargetRatio)
                 {
-                    Hero targetHero = null;
-
                     //Is this hero us?
                     if (ratio.Key.ID == myHero.ID)
                     {
@@ -141,31 +202,47 @@ namespace VindiniumBot.Bots
                             && nearestNonPlayerHeroWithMines.Distance <= 4)
                         {
                             //Go get 'em, tiger!
-                            targetHero = game.LookupHero(nearestNonPlayerHeroWithMines.TargetNode as Tile);
-                            CoreHelpers.OutputLine("Taking down opportunity target, {0}! ({1}, {2})", targetHero.Name, nearestNonPlayerHeroWithMines.TargetNode.X, nearestNonPlayerHeroWithMines.TargetNode.Y);
-                            return nearestNonPlayerHeroWithMines.Directions.FirstOrDefault();
+                            Hero targetHero = game.LookupHero(nearestNonPlayerHeroWithMines.TargetNode as Tile);
+                            if (targetHero.Life < myHero.Life)
+                            {
+                                CoreHelpers.OutputLine("Taking down opportunity target, {0}! ({1}, {2})", targetHero.Name, nearestNonPlayerHeroWithMines.TargetNode.X, nearestNonPlayerHeroWithMines.TargetNode.Y);
+                                return nearestNonPlayerHeroWithMines.Directions.FirstOrDefault();
+                            }
                         }
-                        else if (nearestTavern != null)
+                        if (nearestTavern != null
+                            && myHero.Gold >= mostPlayerGold)
                         {
+                            //Is there another gold mine nearby we can get easily?
+                            if (nearestTavern.Distance <= 3
+                                && nearestUnownedGoldMine != null
+                                && nearestUnownedGoldMine.Distance <= 3
+                                && myHero.Life >= 60)
+                            {
+                                CoreHelpers.OutputLine("Going to snag gold mine near camp site! ({0}, {1})", nearestUnownedGoldMine.TargetNode.X, nearestUnownedGoldMine.TargetNode.Y);
+                                return nearestUnownedGoldMine.Directions.FirstOrDefault();
+                            }
+
                             //Well camping is always nice thought!
                             CoreHelpers.OutputLine("Going to camp (tavern) because we are winning! ({0}, {1})", nearestTavern.TargetNode.X, nearestTavern.TargetNode.Y);
                             return nearestTavern.Directions.FirstOrDefault();
                         }
                     }
-
-                    //Get the hero that we should gank
-                    targetHero = ratio.Key;
-                    var targetHeroPath = game.FindPathsToHeroes(myHeroTile, x => x.OwnerId == ratio.Key.ID, safeTravelFunction).FirstOrDefault();
-
-                    //Are we healthy enough to do it?
-                    if (targetHeroPath != null
-                        && nearestUnownedGoldMine != null
-                        && myHero.Life > 80
-                        && (myHero.Life - 10) > targetHero.Life
-                        && (targetHeroPath.Distance < (nearestUnownedGoldMine.Distance + 2)))
+                    else
                     {
-                        CoreHelpers.OutputLine("Going to kill {0} for the $$$! ({1}, {2})", targetHero.Name, targetHeroPath.TargetNode.X, targetHeroPath.TargetNode.Y);
-                        return targetHeroPath.Directions.FirstOrDefault();
+                        //Get the hero that we should gank
+                        Hero targetHero = ratio.Key;
+                        var targetHeroPath = game.FindPathsToHeroes(myHeroTile, x => x.OwnerId == ratio.Key.ID, safeTravelFunction).FirstOrDefault();
+
+                        //Are we healthy enough to do it?
+                        if (targetHeroPath != null
+                            && nearestUnownedGoldMine != null
+                            && myHero.Life >= 50
+                            && targetHero.Life < myHero.Life
+                            && (targetHeroPath.Distance < (nearestUnownedGoldMine.Distance + 2)))
+                        {
+                            CoreHelpers.OutputLine("Going to kill {0} for the $$$! ({1}, {2})", targetHero.Name, targetHeroPath.TargetNode.X, targetHeroPath.TargetNode.Y);
+                            return targetHeroPath.Directions.FirstOrDefault();
+                        }
                     }
                 }
             }
@@ -177,7 +254,7 @@ namespace VindiniumBot.Bots
             {
                 var hero = game.LookupHero(nearestNonPlayerHeroWithMines.TargetNode as Tile);
                 if (hero != null
-                    && hero.Life <= (myHero.Life - 20))
+                    && hero.Life < myHero.Life)
                 {
                     //Go for it
                     CoreHelpers.OutputLine("Going to pick off {0}! ({1}, {2})", hero.Name, hero.Position.X, hero.Position.Y);
