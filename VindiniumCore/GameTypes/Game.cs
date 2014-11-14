@@ -89,10 +89,10 @@ namespace VindiniumCore.GameTypes
 
         #region Finding paths
 
-        public DirectionSet FindPath(Node source, Node target, Func<Node, int> costForNode = null)
+        public DirectionSet FindPath(Node source, Node target, Func<Node, NodeStatus> statusFunc = null)
         {
             var pathfinder = new PathFinder(Board);
-            var path = pathfinder.FindShortestPath(source, target, costForNode);
+            var path = pathfinder.FindShortestPath(source, target, statusFunc);
             if (path != null)
             {
                 return new DirectionSet(path);
@@ -100,26 +100,26 @@ namespace VindiniumCore.GameTypes
             return null;
         }
 
-        public IEnumerable<DirectionSet> FindPaths(Node source, IEnumerable<Tile> tiles, Func<Node, int> costForNode = null)
+        public IEnumerable<DirectionSet> FindPaths(Node source, IEnumerable<Tile> tiles, Func<Node, NodeStatus> statusFunc = null)
         {
-            return tiles.Select(tile => FindPath(source, tile, costForNode))
+            return tiles.Select(tile => FindPath(source, tile, statusFunc))
                         .Where(x => x != null)
                         .OrderBy(x => x.Cost); //Cost, not distance! Factors in dynamic costing.
         }
 
-        public IEnumerable<DirectionSet> FindPathsToHeroes(Node source, Func<Tile, bool> predicate = null, Func<Node, int> costForNode = null)
+        public IEnumerable<DirectionSet> FindPathsToHeroes(Node source, Func<Tile, bool> predicate = null, Func<Node, NodeStatus> statusFunc = null)
         {
-            return FindPaths(source, FindHeroes(predicate));
+            return FindPaths(source, FindHeroes(predicate), statusFunc);
         }
 
-        public IEnumerable<DirectionSet> FindPathsToGoldMines(Node source, Func<Tile, bool> predicate = null, Func<Node, int> costForNode = null)
+        public IEnumerable<DirectionSet> FindPathsToGoldMines(Node source, Func<Tile, bool> predicate = null, Func<Node, NodeStatus> statusFunc = null)
         {
-            return FindPaths(source, FindGoldMines(predicate));
+            return FindPaths(source, FindGoldMines(predicate), statusFunc);
         }
 
-        public IEnumerable<DirectionSet> FindPathsToTaverns(Node source, Func<Tile, bool> predicate = null, Func<Node, int> costForNode = null)
+        public IEnumerable<DirectionSet> FindPathsToTaverns(Node source, Func<Tile, bool> predicate = null, Func<Node, NodeStatus> statusFunc = null)
         {
-            return FindPaths(source, FindTaverns(predicate), costForNode);
+            return FindPaths(source, FindTaverns(predicate), statusFunc);
         }
 
         #endregion
