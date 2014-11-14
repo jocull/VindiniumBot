@@ -28,46 +28,34 @@ namespace VindiniumBot.Bots
 
             //Precalculate paths to other heros
             Tile myHeroTile = state.FindMyHero();
-            Dictionary<Hero, DirectionSet> heroPaths = game.FindPathsToHeroes(myHeroTile, t => t.OwnerId != myHeroTile.OwnerId)
-                                                           .ToDictionary(x => game.LookupHero(x.TargetNode as Tile),
-                                                                         x => x);
             int mostPlayerGold = game.Heroes.Max(x => x.Gold);
 
             //How safe should we be traveling right now?
-            var safeTravelFunction = new Func<Node, int>(node =>
+            var safeTravelFunction = new Func<Node, NodeStatus>(node =>
             {
                 Tile t = node as Tile;
-                var neighbors = state.Game.Board.GetNeighboringNodes(t, 3, true).Select(x => x as Tile);
+                var neighbors = state.Game.Board.GetNeighboringNodes(t, 1, true).Select(x => x as Tile);
 
-                int totalCost = 1;  //Default
                 foreach (var x in neighbors)
                 {
                     //Any heros in the area?
                     if (x.TileType == Tile.TileTypes.Hero
                         && x.OwnerId != myHero.ID)
                     {
-                        //Dangerous heros nearby?
+                        //Dangerous heros in the way?
                         Hero h = game.LookupHero(x);
-                        DirectionSet pathToThisHero = null;
-                        heroPaths.TryGetValue(h, out pathToThisHero);
-                        if (pathToThisHero != null 
-                            && pathToThisHero.Distance <= 4 //Chase distance
-                            && h.Life > myHero.Life)
+                        if (h.Life > myHero.Life)
                         {
                             //Avoid!
-                            totalCost += 30;
+                            return new NodeStatus(30, true);
                         }
                     }
                 }
-
-                return totalCost;
+                return new NodeStatus(1, false);
             });
 
             //Where are the nearest safe taverns?
-            var nearestTavern = game.FindPathsToTaverns(myHeroTile, x =>
-            {
-                return true;
-            }, safeTravelFunction).FirstOrDefault(); //The safe travel function here should avoid confrontations
+            var nearestTavern = game.FindPathsToTaverns(myHeroTile, statusFunc: safeTravelFunction).FirstOrDefault(); //The safe travel function here should avoid confrontations
 
             //Where's the nearest non-player hero?
             var nearestNonPlayerHero = game.FindPathsToHeroes(myHeroTile, x =>
