@@ -72,17 +72,32 @@ namespace VindiniumCore.GameTypes
 
         public IEnumerable<Tile> FindHeroes(Func<Tile, bool> predicate = null)
         {
+            if (predicate == null)
+            {
+                predicate = x => true;
+            }
+
             return FindTiles(x => x.TileType == Tile.TileTypes.Hero).Where(x => predicate(x));
         }
 
         public IEnumerable<Tile> FindGoldMines(Func<Tile, bool> predicate = null)
         {
+            if (predicate == null)
+            {
+                predicate = x => true;
+            }
+
             return FindTiles(x => x.TileType == Tile.TileTypes.GoldMine).Where(x => predicate(x));
         }
 
-        public IEnumerable<Tile> FindTaverns(Func<Tile, bool> predciate)
+        public IEnumerable<Tile> FindTaverns(Func<Tile, bool> predicate = null)
         {
-            return FindTiles(x => x.TileType == Tile.TileTypes.Tavern).Where(x => predciate(x));
+            if (predicate == null)
+            {
+                predicate = x => true;
+            }
+
+            return FindTiles(x => x.TileType == Tile.TileTypes.Tavern).Where(x => predicate(x));
         }
 
         #endregion
