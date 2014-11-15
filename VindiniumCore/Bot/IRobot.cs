@@ -12,6 +12,7 @@ namespace VindiniumCore.Bot
     /// </summary>
     public interface IRobot
     {
+        void Reset();
         Directions GetHeroMove(GameState gameState);
     }
 }

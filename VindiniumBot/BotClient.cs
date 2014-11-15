@@ -38,10 +38,13 @@ namespace VindiniumBot
                 return;
             }
 
+            //Reset the brain before the game starts
+            Bot.Reset();
+
             GameState state = null;
             try
             {
-                 state = _BeginGame();
+                state = _BeginGame();
             }
             catch (WebException ex)
             {
