@@ -41,7 +41,7 @@ namespace VindiniumBot.Bots
                 new FleeTask(3),
                 new HealingTask(4),
                 new CampingTask(5),
-                new KillTask(6),
+                //new KillTask(6),
                 new CaptureMineTask(7),
             };
         }
