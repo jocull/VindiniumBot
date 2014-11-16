@@ -80,6 +80,17 @@ namespace VindiniumCore.GameTypes
             return FindTiles(x => x.TileType == Tile.TileTypes.Hero).Where(x => predicate(x));
         }
 
+        public IEnumerable<Tile> FindSpawnPoints(Func<Hero, bool> predicate = null)
+        {
+            if (predicate == null)
+            {
+                predicate = x => true;
+            }
+
+            return Heroes.Where(predicate)
+                         .Select(h => Board.GetNode(h.Position.X, h.Position.Y) as Tile);
+        }
+
         public IEnumerable<Tile> FindGoldMines(Func<Tile, bool> predicate = null)
         {
             if (predicate == null)
