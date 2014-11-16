@@ -28,21 +28,19 @@ namespace VindiniumBot.Bots
             // Task orders:
             // =================================
             // Get out of a stuck situation
-            // Claims easy kills we can definitely win
+            // Claims kills we can win (immenent death / enemy wounded / gold mines (ratio?) / distance)
             // Flee a dangerous position
             // Heal or continue healing
             // Camping (by winning distance)
-            // *** (Copy, easy kill) Kill a player (immenent death / enemy wounded / gold mines (ratio?) / distance)
             // Capture a gold mine (by distance / life)
             _Tasks = new BotTask[]
             {
                 new StuckTask(1),
-                new EasyKillTask(2),
+                new KillTask(2),
                 new FleeTask(3),
                 new HealingTask(4),
                 new CampingTask(5),
-                //new KillTask(6),
-                new CaptureMineTask(7),
+                new CaptureMineTask(6)
             };
         }
 

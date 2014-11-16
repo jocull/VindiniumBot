@@ -48,7 +48,7 @@
     <Compile Include="Bot\Tasks\BotTask.cs" />
     <Compile Include="Bot\Tasks\CampingTask.cs" />
     <Compile Include="Bot\Tasks\CaptureMineTask.cs" />
-    <Compile Include="Bot\Tasks\EasyKillTask.cs" />
+    <Compile Include="Bot\Tasks\KillTask.cs" />
     <Compile Include="Bot\Tasks\FleeTask.cs" />
     <Compile Include="Bot\Tasks\HealingTask.cs" />
     <Compile Include="Bot\Tasks\StuckTask.cs" />
