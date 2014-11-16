@@ -36,7 +36,7 @@ namespace VindiniumBot.Bots
             // Capture a gold mine (by distance / life)
             _Tasks = new BotTask[]
             {
-                //new StuckTask(1),
+                new StuckTask(1),
                 new EasyKillTask(2),
                 new FleeTask(3),
                 new HealingTask(4),
