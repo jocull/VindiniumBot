@@ -7,9 +7,9 @@ using VindiniumCore.GameTypes;
 
 namespace VindiniumCore.Bot.Tasks
 {
-    public class EasyKillTask : BotTask
+    public class KillTask : BotTask
     {
-        public EasyKillTask(int priority)
+        public KillTask(int priority)
             : base(priority)
         {
         }
