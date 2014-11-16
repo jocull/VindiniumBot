@@ -52,16 +52,22 @@ namespace VindiniumCore.Bot.Tasks
             var enemySpawnPoints = _H.Game.FindSpawnPoints(x => x.ID != _H.MyHero.ID);
             var enemySpawnPointClosest = _H.Game.FindPaths(_H.MyHeroTile, enemySpawnPoints).FirstOrDefault();
             if (enemySpawnPointClosest != null
-                && enemySpawnPointClosest.Distance <= 3)
+                && enemySpawnPointClosest.Distance <= 2)
             {
                 //I'm near an enemy spawn
                 if (nearestEnemyPath != null
                     && nearestEnemyPath.Distance <= 2)
                 {
-                    //We won't win this fight. Just run away...
-                    score = PRIORITY_HIGH;
-                    details = "avoiding enemy spawn-lock";
-                    return true;
+                    //Does the nearest enemy own that spawn?
+                    var nearestEnemy = _H.Game.LookupHero(nearestEnemyPath.TargetNode as Tile);
+                    if (nearestEnemy.SpawnPosition.X == enemySpawnPointClosest.TargetNode.X
+                        && nearestEnemy.SpawnPosition.Y == enemySpawnPointClosest.TargetNode.Y)
+                    {
+                        //We won't win this fight. Just run away...
+                        score = PRIORITY_HIGH;
+                        details = "avoiding enemy spawn-lock";
+                        return true;
+                    }
                 }
             }
 
@@ -100,12 +106,26 @@ namespace VindiniumCore.Bot.Tasks
             string details;
             if (_ShouldRunAway(out score, out details))
             {
-                _LastBestPath = _BestUnownedGoldMinePaths().FirstOrDefault();
-                if (_LastBestPath != null)
+
+                //Stay at the tavern until we top off?
+                if (_H.MyHero.Life <= 55)
                 {
-                    _AnnouncementForGoldMine("[Stuck] Getting unstuck (" + details + ")", _LastBestPath.TargetNode as Tile);
+                    _LastBestPath = _BestTavernPaths().FirstOrDefault();
+                    if (_LastBestPath != null)
+                    {
+                        _AnnouncementForGoldMine("[Stuck] Healing before getting unstuck (" + details + ")", _LastBestPath.TargetNode as Tile);
+                    }
                 }
-                else
+                //Get out of there -- go for a good gold mine
+                if (_LastBestPath == null)
+                {
+                    _LastBestPath = _BestUnownedGoldMinePaths().FirstOrDefault();
+                    if (_LastBestPath != null)
+                    {
+                        _AnnouncementForGoldMine("[Stuck] Getting unstuck (" + details + ")", _LastBestPath.TargetNode as Tile);
+                    }
+                }
+                if (_LastBestPath == null)
                 {
                     _AnnouncementGeneral("[Stuck] No exit path found! (" + details + ")");
                 }
