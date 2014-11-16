@@ -51,7 +51,6 @@
     <Compile Include="Bot\Tasks\EasyKillTask.cs" />
     <Compile Include="Bot\Tasks\FleeTask.cs" />
     <Compile Include="Bot\Tasks\HealingTask.cs" />
-    <Compile Include="Bot\Tasks\KillTask.cs" />
     <Compile Include="Bot\Tasks\StuckTask.cs" />
     <Compile Include="CoreHelpers.cs" />
     <Compile Include="GameTypes\Board.cs" />
