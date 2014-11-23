@@ -35,19 +35,26 @@ namespace VindiniumCore.Bot.Tasks
                 else if (_H.MyHero.Life <= 20)
                 {
                     //Not going to do much good in this state
-                    _AnnouncementForTavern("[Heal] Running for closest (weak!)", _LastBestPath.TargetNode as Tile);
+                    _AnnouncementForTavern("[Heal] Running for closest tavern (weak!)", _LastBestPath.TargetNode as Tile);
                     return PRIORITY_HIGH;
                 }
 
                 int ownedMineCount = _H.GoldMinesOwned.Count();
                 int totalMineCount = _H.Game.FindGoldMines().Count();
                 double ownedMineRatio = (double)ownedMineCount / (double)totalMineCount;
-                if (ownedMineRatio >= 0.25
-                    && _H.MyHero.Life <= 50)
+                if (ownedMineRatio >= 0.25)
                 {
-                    //Healing is a good idea
-                    _AnnouncementForTavern("[Heal] Running for closest (safe!)", _LastBestPath.TargetNode as Tile);
-                    return PRIORITY_NORMAL;
+                    //Is there danger nearby?
+                    var enemyPaths = _H.Game.FindPathsToHeroes(_H.MyHeroTile, x => x.OwnerId != _H.MyHero.ID)
+                                            .Where(x => x.Distance <= 4);
+
+                    if (enemyPaths.Any()
+                        && _H.MyHero.Life <= 50)
+                    {
+                        //Healing is a good idea, due to close danger
+                        _AnnouncementForTavern("[Heal] Running for closest tavern (danger!)", _LastBestPath.TargetNode as Tile);
+                        return PRIORITY_NORMAL;
+                    }
                 }
             }
             
