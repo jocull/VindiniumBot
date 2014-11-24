@@ -22,19 +22,18 @@ namespace VindiniumCore.PathFinding
             _NodeSet = nodeSet;
             _ClosedList = new HashSet<Node>();
             _OpenList = new HashSet<Node>();
-            _NodePaths = new Dictionary<Node, NodePath>();
+            _NodePaths = _NodeSet.GetAllNodes()
+                                 .ToDictionary(x => x,
+                                               x => new NodePath(x));
         }
 
         private void _Reset(Node target)
         {
             _ClosedList.Clear();
             _OpenList.Clear();
-            _NodePaths.Clear();
-
-            //Pre-cache node path objects and costs
-            foreach (var node in _NodeSet.GetAllNodes())
+            foreach (var np in _NodePaths)
             {
-                _NodePaths[node] = new NodePath(node, target);
+                np.Value.ResetPath(target);
             }
         }
 
