@@ -20,8 +20,18 @@ namespace VindiniumCore.Bot.Tasks
 
         protected override int _ScoreTaskInternal()
         {
-            //Find the nearest unblocked tavern and get there safely!!!
-            _LastBestPath = _H.BestTavernPath;
+            //Find a safe tavern
+            if (_H.ShortestTavernPath != null
+                && _H.ShortestTavernPath.Distance <= 3)
+            {
+                //Go there, it's close
+                _LastBestPath = _H.ShortestTavernPath;
+            }
+            else
+            {
+                //Travel safely!
+                _LastBestPath = _H.BestTavernPath;
+            }
 
             //Danger close?
             var closestEnemy = _H.Game.FindPathsToHeroes(_H.MyHeroTile, _H.UnownedTile).FirstOrDefault();

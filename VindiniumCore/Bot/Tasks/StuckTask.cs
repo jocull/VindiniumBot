@@ -9,6 +9,9 @@ namespace VindiniumCore.Bot.Tasks
 {
     public class StuckTask : BotTask
     {
+        private DirectionSet _NearestTavernPath { get; set; }
+        private DirectionSet _NearestEnemyPath { get; set; }
+
         public StuckTask(int priority)
             : base(priority)
         {
@@ -16,13 +19,15 @@ namespace VindiniumCore.Bot.Tasks
 
         protected override void _ResetInternal()
         {
+            _NearestTavernPath = null;
+            _NearestEnemyPath = null;
         }
 
         protected bool _ShouldRunAway(out int score, out string details)
         {
             //Nearest tavern & enemy
-            var nearestTavernPath = _H.Game.FindPathsToTaverns(_H.MyHeroTile).FirstOrDefault();
-            var nearestEnemyPath = _H.Game.FindPathsToHeroes(_H.MyHeroTile, _H.UnownedTile).FirstOrDefault();
+            _NearestTavernPath = _H.ShortestTavernPath;
+            _NearestEnemyPath = _H.Game.FindPathsToHeroes(_H.MyHeroTile, _H.UnownedTile).FirstOrDefault();
 
             //Consider our spawn...
             var mySpawnPoint = _H.Game.FindSpawnPoints(x => x.ID == _H.MyHero.ID).First();
@@ -32,11 +37,11 @@ namespace VindiniumCore.Bot.Tasks
             {
                 //I'm near my spawn
                 //Is the nearest enemy sitting on a tavern?
-                if (nearestEnemyPath != null
-                    && nearestTavernPath != null
-                    && nearestEnemyPath.Distance <= 4)
+                if (_NearestEnemyPath != null
+                    && _NearestTavernPath != null
+                    && _NearestEnemyPath.Distance <= 4)
                 {
-                    var enemyTavernPath = _H.Game.FindPath(nearestEnemyPath.TargetNode, nearestTavernPath.TargetNode);
+                    var enemyTavernPath = _H.Game.FindPath(_NearestEnemyPath.TargetNode, _NearestTavernPath.TargetNode);
                     if (enemyTavernPath != null
                         && enemyTavernPath.Distance <= 1)
                     {
@@ -55,11 +60,11 @@ namespace VindiniumCore.Bot.Tasks
                 && enemySpawnPointClosest.Distance <= 2)
             {
                 //I'm near an enemy spawn
-                if (nearestEnemyPath != null
-                    && nearestEnemyPath.Distance <= 2)
+                if (_NearestEnemyPath != null
+                    && _NearestEnemyPath.Distance <= 2)
                 {
                     //Does the nearest enemy own that spawn?
-                    var nearestEnemy = _H.Game.LookupHero(nearestEnemyPath.TargetNode as Tile);
+                    var nearestEnemy = _H.Game.LookupHero(_NearestEnemyPath.TargetNode as Tile);
                     if (nearestEnemy.SpawnPosition.X == enemySpawnPointClosest.TargetNode.X
                         && nearestEnemy.SpawnPosition.Y == enemySpawnPointClosest.TargetNode.Y)
                     {
@@ -75,11 +80,11 @@ namespace VindiniumCore.Bot.Tasks
             // If I'm by a tavern
             //      and you're a by a tavern then....
             //      and I'm by you...
-            if (nearestTavernPath != null
-                && nearestTavernPath.Distance <= 1)
+            if (_NearestTavernPath != null
+                && _NearestTavernPath.Distance <= 1)
             {
-                var myPathToEnemy = _H.Game.FindPath(_H.MyHeroTile, nearestEnemyPath.TargetNode);
-                var enemysPathToTavern = _H.Game.FindPathsToTaverns(nearestEnemyPath.TargetNode).FirstOrDefault();
+                var myPathToEnemy = _H.Game.FindPath(_H.MyHeroTile, _NearestEnemyPath.TargetNode);
+                var enemysPathToTavern = _H.Game.FindPathsToTaverns(_NearestEnemyPath.TargetNode).FirstOrDefault();
                 if (myPathToEnemy != null
                     && enemysPathToTavern != null
                     && myPathToEnemy.Distance <= 1
@@ -110,7 +115,7 @@ namespace VindiniumCore.Bot.Tasks
                 //Stay at the tavern until we top off?
                 if (_H.MyHero.Life <= 55)
                 {
-                    _LastBestPath = _H.BestTavernPath;
+                    _LastBestPath = _NearestTavernPath; //Ignore safety of path, just go to closest
                     if (_LastBestPath != null)
                     {
                         _AnnouncementForGoldMine("[Stuck] Healing before getting unstuck (" + details + ")", _LastBestPath.TargetNode as Tile);
