@@ -57,7 +57,8 @@ namespace VindiniumCore.Bot.Tasks
                     }
                 }
             }
-            
+
+            _LastBestPath = null; //Wipe path
             _AnnouncementGeneral("[Heal] No priority");
             return PRIORITY_LOWEST;
         }
