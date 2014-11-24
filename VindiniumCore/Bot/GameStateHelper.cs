@@ -28,6 +28,10 @@ namespace VindiniumCore.Bot
         public IEnumerable<Tile> EnemyHeroTiles { get; private set; }
         public Func<Node, NodeStatus> TravelModeBlockingHeroes { get; private set; }
         public Func<Node, NodeStatus> TravelModeAvoidingHeroes { get; private set; }
+        public DirectionSet BestTavernPath { get; private set; }
+        public DirectionSet BestUnownedGoldMinePath { get; private set; }
+        public IEnumerable<DirectionSet> BestTavernPaths { get; private set; }
+        public IEnumerable<DirectionSet> BestUnownedGoldMinePaths { get; private set; }
 
         public GameStateHelper(GameState state)
         {
@@ -119,6 +123,61 @@ namespace VindiniumCore.Bot
                 }
                 return new NodeStatus(1, false);
             });
+
+            //CACHED PATHS -- DO THESE LAST!
+            BestTavernPaths = FindBestTavernPaths().ToList();
+            BestUnownedGoldMinePaths = FindBestUnownedGoldMinePaths().ToList();
+
+            BestTavernPath = BestTavernPaths.FirstOrDefault();
+            BestUnownedGoldMinePath = BestUnownedGoldMinePaths.FirstOrDefault();
+        }
+
+        public IEnumerable<DirectionSet> FindBestUnownedGoldMinePaths(IEnumerable<Tile> excludedGoldMinesOrTiles = null)
+        {
+            if (excludedGoldMinesOrTiles == null)
+            {
+                //Exclude all gold mines that are by another hero
+                excludedGoldMinesOrTiles = this.Game.FindGoldMines(this.UnownedTile)
+                                                  .Where(t =>
+                                                  {
+                                                      var paths = this.Game.FindPathsToHeroes(t, this.UnownedTile)
+                                                                         .Where(p => p.Distance <= 1);
+                                                      if (paths.Any())
+                                                      {
+                                                          //This is an excluded mine
+                                                          return true;
+                                                      }
+                                                      //This mine is safe
+                                                      return false;
+                                                  })
+                                                  .ToList();
+            }
+
+            var safestGoldMinePaths = this.Game.FindPathsToGoldMines(this.MyHeroTile, this.UnownedTile, this.TravelModeBlockingHeroes);
+            var saferGoldMinePaths = this.Game.FindPathsToGoldMines(this.MyHeroTile, this.UnownedTile, this.TravelModeAvoidingHeroes);
+            var straightGoldMinePaths = this.Game.FindPathsToGoldMines(this.MyHeroTile, this.UnownedTile);
+            var allPaths = safestGoldMinePaths.Union(saferGoldMinePaths)
+                                              .Union(straightGoldMinePaths)
+                                              .Where(x => !excludedGoldMinesOrTiles.Contains(x.TargetNode));
+
+            return allPaths;
+        }
+
+        public IEnumerable<DirectionSet> FindBestTavernPaths(IEnumerable<Tile> excludedTavernsOrTiles = null)
+        {
+            if (excludedTavernsOrTiles == null)
+            {
+                excludedTavernsOrTiles = Enumerable.Empty<Tile>();
+            }
+
+            var safestPathsToTaverns = this.Game.FindPathsToTaverns(this.MyHeroTile, statusFunc: this.TravelModeBlockingHeroes);
+            var safePathsToTaverns = this.Game.FindPathsToTaverns(this.MyHeroTile, statusFunc: this.TravelModeAvoidingHeroes);
+            var straightPathsToTaverns = this.Game.FindPathsToTaverns(this.MyHeroTile);
+            var allPaths = safestPathsToTaverns.Union(safePathsToTaverns)
+                                               .Union(straightPathsToTaverns)
+                                               .Where(x => !excludedTavernsOrTiles.Contains(x.TargetNode));
+
+            return allPaths;
         }
     }
 }

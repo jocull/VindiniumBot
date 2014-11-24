@@ -20,7 +20,7 @@ namespace VindiniumCore.Bot.Tasks
 
         protected override int _ScoreTaskInternal()
         {
-            _LastBestPath = _BestTavernPaths().FirstOrDefault();
+            _LastBestPath = _H.BestTavernPath;
 
             if (_LastBestPath != null
                 && _H.MyHero.Gold >= 2)
