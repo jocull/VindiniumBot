@@ -33,11 +33,17 @@ namespace VindiniumCore.PathFinding
             }
         }
 
-        public NodePath(Node source, Node target)
+        public NodePath(Node source)
         {
             this.SourceNode = source;
-            this.Heuristic = source.NodeHeuristic(target);
-            this.CostToThisPath = 0; //Default
+            this.Heuristic = 0; //Defaults
+            this.CostToThisPath = 0;
+        }
+
+        public void ResetPath(Node target)
+        {
+            this.ParentNodePath = null;
+            this.Heuristic = this.SourceNode.NodeHeuristic(target);
         }
 
         public IEnumerable<NodePath> ParentNodePaths

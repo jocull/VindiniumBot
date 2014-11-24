@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using VindiniumCore.PathFinding;
 
@@ -115,9 +116,23 @@ namespace VindiniumCore.GameTypes
 
         #region Finding paths
 
+        private int _PathFinderIndex = -1;
+        private const int _PATHFINDER_POOL_SIZE = 8;
+        private PathFinder[] _PathFinderPool = new PathFinder[_PATHFINDER_POOL_SIZE];
+        public PathFinder GetPathFinder()
+        {
+            int idx = Interlocked.Increment(ref _PathFinderIndex) % _PathFinderPool.Length;
+            PathFinder pathfinder = _PathFinderPool[idx];
+            if (pathfinder == null)
+            {
+                pathfinder = _PathFinderPool[idx] = new PathFinder(Board);
+            }
+            return pathfinder;
+        }
+
         public DirectionSet FindPath(Node source, Node target, Func<Node, NodeStatus> statusFunc = null)
         {
-            var pathfinder = new PathFinder(Board);
+            var pathfinder = GetPathFinder();
             var path = pathfinder.FindShortestPath(source, target, statusFunc);
             if (path != null)
             {
