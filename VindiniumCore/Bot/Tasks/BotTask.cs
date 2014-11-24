@@ -85,54 +85,6 @@ namespace VindiniumCore.Bot.Tasks
 
         #region Helper methods
 
-        protected IEnumerable<DirectionSet> _BestUnownedGoldMinePaths(IEnumerable<Tile> excludedGoldMinesOrTiles = null)
-        {
-            if (excludedGoldMinesOrTiles == null)
-            {
-                //Exclude all gold mines that are by another hero
-                excludedGoldMinesOrTiles = _H.Game.FindGoldMines(_H.UnownedTile)
-                                                  .Where(t =>
-                                                  {
-                                                      var paths = _H.Game.FindPathsToHeroes(t, _H.UnownedTile)
-                                                                         .Where(p => p.Distance <= 1);
-                                                      if (paths.Any())
-                                                      {
-                                                          //This is an excluded mine
-                                                          return true;
-                                                      }
-                                                      //This mine is safe
-                                                      return false;
-                                                  })
-                                                  .ToList();
-            }
-
-            var safestGoldMinePaths = _H.Game.FindPathsToGoldMines(_H.MyHeroTile, _H.UnownedTile, _H.TravelModeBlockingHeroes);
-            var saferGoldMinePaths = _H.Game.FindPathsToGoldMines(_H.MyHeroTile, _H.UnownedTile, _H.TravelModeAvoidingHeroes);
-            var straightGoldMinePaths = _H.Game.FindPathsToGoldMines(_H.MyHeroTile, _H.UnownedTile);
-            var allPaths = safestGoldMinePaths.Union(saferGoldMinePaths)
-                                              .Union(straightGoldMinePaths)
-                                              .Where(x => !excludedGoldMinesOrTiles.Contains(x.TargetNode));
-
-            return allPaths;
-        }
-
-        protected IEnumerable<DirectionSet> _BestTavernPaths(IEnumerable<Tile> excludedTavernsOrTiles = null)
-        {
-            if (excludedTavernsOrTiles == null)
-            {
-                excludedTavernsOrTiles = Enumerable.Empty<Tile>();
-            }
-
-            var safestPathsToTaverns = _H.Game.FindPathsToTaverns(_H.MyHeroTile, statusFunc: _H.TravelModeBlockingHeroes);
-            var safePathsToTaverns = _H.Game.FindPathsToTaverns(_H.MyHeroTile, statusFunc: _H.TravelModeAvoidingHeroes);
-            var straightPathsToTaverns = _H.Game.FindPathsToTaverns(_H.MyHeroTile);
-            var allPaths = safestPathsToTaverns.Union(safePathsToTaverns)
-                                               .Union(straightPathsToTaverns)
-                                               .Where(x => !excludedTavernsOrTiles.Contains(x.TargetNode));
-
-            return allPaths;
-        }
-
         protected void _AnnouncementGeneral(string info)
         {
             Announcement = info;

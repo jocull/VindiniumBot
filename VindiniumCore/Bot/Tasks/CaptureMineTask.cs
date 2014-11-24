@@ -20,7 +20,7 @@ namespace VindiniumCore.Bot.Tasks
 
         protected override int _ScoreTaskInternal()
         {
-            _LastBestPath = _BestUnownedGoldMinePaths().FirstOrDefault();
+            _LastBestPath = _H.BestUnownedGoldMinePath;
 
             if (_LastBestPath != null)
             {

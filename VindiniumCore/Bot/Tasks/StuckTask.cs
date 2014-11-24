@@ -110,7 +110,7 @@ namespace VindiniumCore.Bot.Tasks
                 //Stay at the tavern until we top off?
                 if (_H.MyHero.Life <= 55)
                 {
-                    _LastBestPath = _BestTavernPaths().FirstOrDefault();
+                    _LastBestPath = _H.BestTavernPath;
                     if (_LastBestPath != null)
                     {
                         _AnnouncementForGoldMine("[Stuck] Healing before getting unstuck (" + details + ")", _LastBestPath.TargetNode as Tile);
@@ -119,7 +119,7 @@ namespace VindiniumCore.Bot.Tasks
                 //Get out of there -- go for a good gold mine
                 if (_LastBestPath == null)
                 {
-                    _LastBestPath = _BestUnownedGoldMinePaths().FirstOrDefault();
+                    _LastBestPath = _H.BestUnownedGoldMinePath;
                     if (_LastBestPath != null)
                     {
                         _AnnouncementForGoldMine("[Stuck] Getting unstuck (" + details + ")", _LastBestPath.TargetNode as Tile);

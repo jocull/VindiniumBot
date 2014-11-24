@@ -47,9 +47,9 @@ namespace VindiniumCore.Bot.Tasks
                 }
 
                 //Is there a mine we don't own really close by?
-                var goldMinePath = _BestUnownedGoldMinePaths()
-                                            .Where(x => x.Distance <= 4)
-                                            .FirstOrDefault();
+                var goldMinePath = _H.BestUnownedGoldMinePaths
+                                     .Where(x => x.Distance <= 4)
+                                     .FirstOrDefault();
                 if (goldMinePath != null)
                 {
                     _LastBestPath = goldMinePath;
@@ -57,7 +57,7 @@ namespace VindiniumCore.Bot.Tasks
                     return PRIORITY_HIGH;
                 }
 
-                var tavernPath = _BestTavernPaths().FirstOrDefault();
+                var tavernPath = _H.BestTavernPath;
                 if (tavernPath != null)
                 {
                     if (tavernPath.Distance <= 1
