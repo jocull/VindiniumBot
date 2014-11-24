@@ -51,6 +51,7 @@ namespace VindiniumCore.Bot.Tasks
                 }
             }
 
+            _LastBestPath = null; //Wipe path
             _AnnouncementGeneral("[Flee] No priority");
             return PRIORITY_LOWEST; //Default - no consideration
         }

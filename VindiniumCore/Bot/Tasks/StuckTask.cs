@@ -137,6 +137,7 @@ namespace VindiniumCore.Bot.Tasks
                 return score;
             }
 
+            _LastBestPath = null; //Wipe path
             _AnnouncementGeneral("[Stuck] No priority (" + details + ")");
             return PRIORITY_LOWEST;
         }
