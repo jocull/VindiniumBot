@@ -44,6 +44,7 @@ namespace VindiniumCore.GameTypes
             }
         }
 
+        private Tile[] _TilesFlattened = null;
         public IEnumerable<Tile> TilesFlattened
         {
             get
@@ -52,8 +53,13 @@ namespace VindiniumCore.GameTypes
                 {
                     return Enumerable.Empty<Tile>();
                 }
+                else if (_TilesFlattened == null)
+                {
+                    //Pre-cache the selection for speed
+                    _TilesFlattened = Tiles.SelectMany(x => x).ToArray();
+                }
 
-                return Tiles.SelectMany(x => x);
+                return _TilesFlattened;
             }
         }
 
