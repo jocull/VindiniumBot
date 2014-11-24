@@ -28,6 +28,7 @@ namespace VindiniumCore.Bot
         public IEnumerable<Tile> EnemyHeroTiles { get; private set; }
         public Func<Node, NodeStatus> TravelModeBlockingHeroes { get; private set; }
         public Func<Node, NodeStatus> TravelModeAvoidingHeroes { get; private set; }
+        public DirectionSet ShortestTavernPath { get; private set; }
         public DirectionSet BestTavernPath { get; private set; }
         public DirectionSet BestUnownedGoldMinePath { get; private set; }
         public IEnumerable<DirectionSet> BestTavernPaths { get; private set; }
@@ -130,6 +131,7 @@ namespace VindiniumCore.Bot
 
             BestTavernPath = BestTavernPaths.FirstOrDefault();
             BestUnownedGoldMinePath = BestUnownedGoldMinePaths.FirstOrDefault();
+            ShortestTavernPath = this.Game.FindPathsToTaverns(this.MyHeroTile).FirstOrDefault();
         }
 
         public IEnumerable<DirectionSet> FindBestUnownedGoldMinePaths(IEnumerable<Tile> excludedGoldMinesOrTiles = null)
